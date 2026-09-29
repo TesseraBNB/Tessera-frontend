@@ -1,0 +1,242 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════
+   TESSERA — "Obsidian Observatory" design system
+   Obsidian surfaces · bone text · ember (warm signature) ·
+   signal-cyan (live data / agent stream) · tessellation motifs
+   Display: Instrument Serif · UI: Schibsted Grotesk · Data: IBM Plex Mono
+   ═══════════════════════════════════════════════════════════ */
+
+@theme {
+  /* Surfaces */
+  --color-void: #07090a;
+  --color-bg: #0a0c0e;
+  --color-surface: #0f1417;
+  --color-raised: #151c21;
+  --color-line: #222b31;
+  --color-line-bright: #33404a;
+
+  /* Text — warm bone */
+  --color-bone: #ece7da;
+  --color-bone-dim: #9ba39f;
+  --color-bone-faint: #626c6a;
+
+  /* Ember — warm signature accent */
+  --color-ember: #e8633a;
+  --color-ember-bright: #ff7d52;
+  --color-ember-deep: #a83c1c;
+
+  /* Signal — cool accent for live data + the agent stream */
+  --color-signal: #46d6d0;
+  --color-signal-bright: #74f2ec;
+  --color-signal-deep: #1c817d;
+
+  /* Status */
+  --color-good: #5fd1a0;
+  --color-warn: #e8b23a;
+  --color-bad: #ef5d5d;
+
+  /* Typography (CSS vars injected by next/font in layout.tsx) */
+  --font-display: var(--ff-display), "Times New Roman", serif;
+  --font-sans: var(--ff-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--ff-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  /* Radii */
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+}
+
+/* ─── Base ─── */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background: var(--color-void);
+}
+
+body {
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-bone);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv01";
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: var(--color-ember);
+  color: var(--color-void);
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Mono micro-label */
+.label {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-bone-dim);
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-signal) 22%, transparent);
+  border-radius: 99px;
+  border: 2px solid var(--color-bg);
+}
+::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--color-signal) 45%, transparent); }
+
+/* ─── Focus ─── */
+:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+input::placeholder, textarea::placeholder { color: var(--color-bone-faint); }
+
+/* ═══════════════════════════════════════════════════════════
+   MOTIFS — tessellation, grain, glow
+   ═══════════════════════════════════════════════════════════ */
+
+/* Faint tessellated diamond weave (Tessera = mosaic tile) */
+.tess-field {
+  background-image:
+    repeating-linear-gradient(60deg, color-mix(in srgb, var(--color-bone) 4%, transparent) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(-60deg, color-mix(in srgb, var(--color-bone) 4%, transparent) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--color-bone) 3%, transparent) 0 1px, transparent 1px 45px);
+}
+
+/* Fine dotted constellation */
+.dot-field {
+  background-image: radial-gradient(color-mix(in srgb, var(--color-bone) 8%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Grain overlay for depth */
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+.glow-ember {
+  background: radial-gradient(60% 60% at 50% 0%, color-mix(in srgb, var(--color-ember) 22%, transparent), transparent 70%);
+}
+.glow-signal {
+  background: radial-gradient(60% 60% at 50% 50%, color-mix(in srgb, var(--color-signal) 18%, transparent), transparent 70%);
+}
+
+/* ─── Surfaces ─── */
+.panel {
+  background: linear-gradient(180deg, var(--color-surface), color-mix(in srgb, var(--color-surface) 80%, var(--color-bg)));
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+}
+.panel-raised {
+  background: var(--color-raised);
+  border: 1px solid var(--color-line-bright);
+  border-radius: var(--radius-lg);
+}
+.hairline { height: 1px; background: var(--color-line); }
+
+/* ─── Buttons ─── */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: var(--font-mono); font-size: 0.8125rem; font-weight: 500;
+  letter-spacing: 0.02em;
+  padding: 0.7rem 1.15rem; border-radius: 10px;
+  transition: transform 0.25s cubic-bezier(0.2,0.8,0.2,1), background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer; border: 1px solid transparent;
+}
+.btn-ember {
+  background: var(--color-ember); color: var(--color-void);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-ember) 50%, transparent);
+}
+.btn-ember:hover { background: var(--color-ember-bright); transform: translateY(-2px); box-shadow: 0 10px 30px -8px color-mix(in srgb, var(--color-ember) 60%, transparent); }
+.btn-ghost {
+  background: transparent; color: var(--color-bone); border-color: var(--color-line-bright);
+}
+.btn-ghost:hover { border-color: var(--color-signal); color: var(--color-signal-bright); transform: translateY(-2px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* ─── Inputs ─── */
+.input {
+  width: 100%;
+  background: var(--color-void);
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  color: var(--color-bone);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--color-signal);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-signal) 15%, transparent);
+}
+
+/* ─── Tiles (agent stream / tessellation viz) ─── */
+.tile {
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+}
+.tile-active {
+  border-color: color-mix(in srgb, var(--color-signal) 60%, transparent);
+  background: color-mix(in srgb, var(--color-signal) 12%, transparent);
+  box-shadow: 0 0 18px -4px color-mix(in srgb, var(--color-signal) 50%, transparent);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════════════ */
+@keyframes tess-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tess-pulse { 0%,100% { opacity: 0.35; } 50% { opacity: 1; } }
+@keyframes tess-blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes tess-spin { to { transform: rotate(360deg); } }
+@keyframes tess-sheen { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+.rise { opacity: 0; animation: tess-rise 0.7s cubic-bezier(0.2,0.8,0.2,1) forwards; }
+.pulse-soft { animation: tess-pulse 2.4s ease-in-out infinite; }
+.cursor-blink::after { content: "▋"; margin-left: 1px; color: var(--color-signal); animation: tess-blink 1s step-end infinite; }
+.spin { animation: tess-spin 0.9s linear infinite; }
+
+/* Shimmering skeleton */
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-raised) 37%, var(--color-surface) 63%);
+  background-size: 200% 100%;
+  animation: tess-sheen 1.4s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* Underline-grow link */
+.link-grow {
+  background-image: linear-gradient(var(--color-signal), var(--color-signal));
+  background-size: 0% 1px; background-repeat: no-repeat; background-position: 0 100%;
+  transition: background-size 0.35s cubic-bezier(0.2,0.8,0.2,1);
+}
+.link-grow:hover { background-size: 100% 1px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .rise { opacity: 1; }
+}
