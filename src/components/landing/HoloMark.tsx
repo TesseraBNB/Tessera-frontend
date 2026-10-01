@@ -49,7 +49,8 @@ const VERT = /* glsl */ `
 // Tinted glass, alpha-blended so each tile keeps the icon's colour (additive
 // light washes bone and grey out to white): a simple key light for form, lit
 // edges, fins on the plates, faint scanlines and a soft sweeping band.
-// Output is premultiplied.
+// Output is premultiplied; the small emissive term added on top of col * a
+// is light the glass gives off, so edges and fins glow a little.
 const GLASS = /* glsl */ `
   precision highp float;
   uniform vec3 uColor;
@@ -65,24 +66,28 @@ const GLASS = /* glsl */ `
     vec3 n = normalize(vNormal);
     float edgeDist = min(min(vUv.x, 1.0 - vUv.x), min(vUv.y, 1.0 - vUv.y));
     float fres = pow(1.0 - abs(dot(n, normalize(vView))), 2.0);
-    float key = 0.68 + 0.32 * max(dot(n, normalize(vec3(-0.4, 0.7, 0.6))), 0.0);
+    float key = 0.75 + 0.32 * max(dot(n, normalize(vec3(-0.4, 0.7, 0.6))), 0.0);
     float scan = 0.93 + 0.07 * sin(vWorld.y * 70.0 - uTime * 6.0);
     float sweep = exp(-pow((vWorld.y - (mod(uTime * 0.8, 6.0) - 3.0)) * 2.2, 2.0));
     vec3 col;
     float a;
+    float glow;
     if (uKind < 0.5) {
       float edge = 1.0 - smoothstep(0.0, 0.04, edgeDist);
+      float halo = 1.0 - smoothstep(0.0, 0.12, edgeDist);
       a = edge * 0.85 + fres * 0.12 + 0.06;
       col = mix(uColor * key, vec3(1.0), edge * 0.15);
+      glow = edge * 0.3 + halo * 0.1 + fres * 0.08;
     } else {
       float edge = 1.0 - smoothstep(0.0, 0.06, edgeDist);
       float fins = pow(abs(sin(vUv.x * 3.14159 * 14.0)), 4.0);
       a = 0.38 + fins * 0.3 + edge * 0.3;
       col = mix(uColor * key * (0.8 + 0.25 * fins), vec3(1.0), edge * 0.1);
+      glow = fins * 0.1 + edge * 0.12;
     }
-    a = min(a * scan * uOpacity + sweep * 0.1 * uOpacity, 1.0);
-    a *= smoothstep(0.5, 0.36, length(gl_FragCoord.xy / uRes - 0.5));
-    gl_FragColor = vec4(min(col, 1.0) * a, a);
+    float fade = smoothstep(0.5, 0.36, length(gl_FragCoord.xy / uRes - 0.5));
+    a = min(a * scan * uOpacity + sweep * 0.1 * uOpacity, 1.0) * fade;
+    gl_FragColor = vec4(min(col, 1.0) * a + uColor * glow * uOpacity * fade, a);
   }
 `;
 
