@@ -5,20 +5,18 @@ import { Box, Camera, Mesh, Program, Renderer, Transform, Vec3 } from "ogl";
 import { LogoMark } from "@/components/Logo";
 
 // The Tessera mark as a 3D hologram: each of the four tesserae is a glass shell
-// with neon edges around a stack of finned glass plates, ringed by dark panels
+// with lit edges around a stack of finned glass plates, ringed by dark panels
 // (after the exploded-cube reference in ../References). The tiles drift apart
 // and lock back together on a slow cycle — evidence pulled apart, then
 // assembled — and hovering the hero pulls them apart.
 
-// Saturated neon versions of the mark's tiles: the icon's ember and cyan, with
-// the site's violet and electric blue standing in for its bone and grey (neutral
-// colours read as washed-out white in additive glass). Each keeps one channel
-// near zero so stacked layers stay coloured instead of clipping to white.
+// The tile colours of app/icon.svg, exactly.
+const hex = (h: string): [number, number, number] => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255) as [number, number, number];
 const TILES: { dir: [number, number]; color: [number, number, number]; z: number }[] = [
-  { dir: [0, 1], color: [1.0, 0.3, 0.04], z: 0.45 }, // top — ember
-  { dir: [1, 0], color: [0.0, 0.92, 1.0], z: -0.3 }, // right — cyan
-  { dir: [0, -1], color: [0.72, 0.18, 1.0], z: 0.25 }, // bottom — violet
-  { dir: [-1, 0], color: [0.16, 0.36, 1.0], z: -0.5 }, // left — electric blue
+  { dir: [0, 1], color: hex("#e8633a"), z: 0.45 }, // top — ember
+  { dir: [1, 0], color: hex("#46d6d0"), z: -0.3 }, // right — cyan
+  { dir: [0, -1], color: hex("#ece7da"), z: 0.25 }, // bottom — bone
+  { dir: [-1, 0], color: hex("#9ba39f"), z: -0.5 }, // left — grey
 ];
 
 const SCALE = 0.85; // world units per logo offset (12 of the icon's 64)
@@ -48,9 +46,11 @@ const VERT = /* glsl */ `
   }
 `;
 
-// Additive glass: neon edges, fresnel rim, fins on the plates, scanlines, a
-// sweeping band and a faint flicker. Output is premultiplied.
-const GLOW = /* glsl */ `
+// Tinted glass, alpha-blended so each tile keeps the icon's colour (additive
+// light washes bone and grey out to white): a simple key light for form, lit
+// edges, fins on the plates, faint scanlines and a soft sweeping band.
+// Output is premultiplied.
+const GLASS = /* glsl */ `
   precision highp float;
   uniform vec3 uColor;
   uniform float uTime;
@@ -62,27 +62,27 @@ const GLOW = /* glsl */ `
   varying vec3 vView;
   varying vec3 vWorld;
   void main() {
+    vec3 n = normalize(vNormal);
     float edgeDist = min(min(vUv.x, 1.0 - vUv.x), min(vUv.y, 1.0 - vUv.y));
-    float fres = pow(1.0 - abs(dot(normalize(vNormal), normalize(vView))), 2.0);
-    float scan = 0.82 + 0.18 * sin(vWorld.y * 70.0 - uTime * 6.0);
+    float fres = pow(1.0 - abs(dot(n, normalize(vView))), 2.0);
+    float key = 0.68 + 0.32 * max(dot(n, normalize(vec3(-0.4, 0.7, 0.6))), 0.0);
+    float scan = 0.93 + 0.07 * sin(vWorld.y * 70.0 - uTime * 6.0);
     float sweep = exp(-pow((vWorld.y - (mod(uTime * 0.8, 6.0) - 3.0)) * 2.2, 2.0));
-    float flicker = 0.94 + 0.06 * sin(uTime * 37.0) * sin(uTime * 13.0);
     vec3 col;
     float a;
     if (uKind < 0.5) {
-      float edge = 1.0 - smoothstep(0.0, 0.05, edgeDist);
-      a = edge * 1.1 + fres * 0.45 + 0.09;
-      col = mix(uColor, vec3(1.0), edge * 0.18);
+      float edge = 1.0 - smoothstep(0.0, 0.04, edgeDist);
+      a = edge * 0.85 + fres * 0.12 + 0.06;
+      col = mix(uColor * key, vec3(1.0), edge * 0.15);
     } else {
-      float edge = 1.0 - smoothstep(0.0, 0.08, edgeDist);
-      float fins = pow(abs(sin(vUv.x * 3.14159 * 14.0)), 5.0);
-      float core = 1.0 - smoothstep(0.1, 0.75, length(vUv - 0.5) * 1.4);
-      a = 0.2 + fins * (0.45 + 0.55 * core) + edge * 0.7;
-      col = mix(uColor, vec3(1.0), fins * core * 0.12);
+      float edge = 1.0 - smoothstep(0.0, 0.06, edgeDist);
+      float fins = pow(abs(sin(vUv.x * 3.14159 * 14.0)), 4.0);
+      a = 0.38 + fins * 0.3 + edge * 0.3;
+      col = mix(uColor * key * (0.8 + 0.25 * fins), vec3(1.0), edge * 0.1);
     }
-    a = a * scan * flicker * uOpacity + sweep * 0.3 * uOpacity;
+    a = min(a * scan * uOpacity + sweep * 0.1 * uOpacity, 1.0);
     a *= smoothstep(0.5, 0.36, length(gl_FragCoord.xy / uRes - 0.5));
-    gl_FragColor = vec4(col * a, a);
+    gl_FragColor = vec4(min(col, 1.0) * a, a);
   }
 `;
 
@@ -146,16 +146,16 @@ export default function HoloMark({ className = "" }: { className?: string }) {
     const res = { value: [1, 1] };
     const time = { value: 0 };
 
-    const glowProgram = (color: [number, number, number], kind: number, opacity: number) => {
+    const glassProgram = (color: [number, number, number], kind: number, opacity: number) => {
       const p = new Program(gl, {
         vertex: VERT,
-        fragment: GLOW,
+        fragment: GLASS,
         uniforms: { uColor: { value: color }, uTime: time, uKind: { value: kind }, uOpacity: { value: opacity }, uRes: res },
         transparent: true,
         cullFace: false,
         depthWrite: false,
       });
-      p.setBlendFunc(gl.ONE, gl.ONE);
+      p.setBlendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       return p;
     };
 
@@ -166,11 +166,11 @@ export default function HoloMark({ className = "" }: { className?: string }) {
       const node = new Transform();
       node.setParent(group);
       const color = t.color;
-      const shell = new Mesh(gl, { geometry: shellGeo, program: glowProgram(color, 0, 1) });
+      const shell = new Mesh(gl, { geometry: shellGeo, program: glassProgram(color, 0, 1) });
       shell.renderOrder = 2;
       shell.setParent(node);
       const plates = Array.from({ length: PLATES }, (_, i) => {
-        const m = new Mesh(gl, { geometry: plateGeo, program: glowProgram(color, 1, 0.75 + 0.25 * Math.sin((i / (PLATES - 1)) * Math.PI)) });
+        const m = new Mesh(gl, { geometry: plateGeo, program: glassProgram(color, 1, 0.75 + 0.25 * Math.sin((i / (PLATES - 1)) * Math.PI)) });
         m.renderOrder = 2;
         m.setParent(node);
         return m;
@@ -276,7 +276,7 @@ export default function HoloMark({ className = "" }: { className?: string }) {
 
   return (
     <div ref={hostRef} className={`relative ${className}`} aria-hidden>
-      <div className="absolute inset-[24%] animate-pulse-soft rounded-full bg-violet/30 blur-3xl" />
+      <div className="absolute inset-[26%] animate-pulse-soft rounded-full bg-violet/20 blur-3xl" />
       <span ref={fallbackRef} className="absolute inset-0 grid place-items-center">
         <LogoMark size={96} />
       </span>

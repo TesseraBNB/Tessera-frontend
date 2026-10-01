@@ -10,7 +10,7 @@ to call, *gathers* live evidence (Octant rounds, donor overlap, mechanism replay
 
 | Step | Physical object | On screen |
 | --- | --- | --- |
-| The agent | a lens that pulls evidence in | React Bits **Orb** (WebGL) with the mark at its core as a 3D hologram (`HoloMark`): four glass tiles with finned plates, ringed by dark panels, drifting apart and locking back together |
+| The agent | a lens that pulls evidence in | React Bits **Orb** (WebGL) with the mark at its core as a 3D hologram (`HoloMark`): four glass tiles in the icon's colours with finned plates, ringed by dark panels, drifting apart and locking back together |
 | Evidence | readings taken by instruments | glass chips orbiting the Orb, each `tool → reading` from a real run |
 | Trust graph | a donor-overlap network | SVG graph of epoch 10's 24 projects, edge weight = Jaccard |
 | Mechanisms | four rule sets on one allocation | diverging bars: the focus project's change per mechanism |
