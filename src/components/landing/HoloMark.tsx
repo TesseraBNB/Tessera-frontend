@@ -10,17 +10,16 @@ import { LogoMark } from "@/components/Logo";
 // and lock back together on a slow cycle — evidence pulled apart, then
 // assembled — and hovering the hero pulls them apart.
 
-// Brand colours from app/icon.svg, nudged toward the hologram violet.
-const VIOLET: [number, number, number] = [0.612, 0.263, 0.996];
-// `violet` is how far each tile is pulled toward the hologram violet; the two
-// light tiles need more so additive glass doesn't blow out to white.
-const TILES: { dir: [number, number]; color: [number, number, number]; violet: number; z: number }[] = [
-  { dir: [0, 1], color: [0.91, 0.39, 0.23], violet: 0.25, z: 0.45 }, // top — ember
-  { dir: [1, 0], color: [0.27, 0.84, 0.82], violet: 0.25, z: -0.3 }, // right — cyan
-  { dir: [0, -1], color: [0.93, 0.91, 0.85], violet: 0.5, z: 0.25 }, // bottom — bone
-  { dir: [-1, 0], color: [0.61, 0.64, 0.62], violet: 0.45, z: -0.5 }, // left — grey
+// Saturated neon versions of the mark's tiles: the icon's ember and cyan, with
+// the site's violet and electric blue standing in for its bone and grey (neutral
+// colours read as washed-out white in additive glass). Each keeps one channel
+// near zero so stacked layers stay coloured instead of clipping to white.
+const TILES: { dir: [number, number]; color: [number, number, number]; z: number }[] = [
+  { dir: [0, 1], color: [1.0, 0.3, 0.04], z: 0.45 }, // top — ember
+  { dir: [1, 0], color: [0.0, 0.92, 1.0], z: -0.3 }, // right — cyan
+  { dir: [0, -1], color: [0.72, 0.18, 1.0], z: 0.25 }, // bottom — violet
+  { dir: [-1, 0], color: [0.16, 0.36, 1.0], z: -0.5 }, // left — electric blue
 ];
-const tint = (c: [number, number, number], k: number) => c.map((v, i) => v + (VIOLET[i] - v) * k) as [number, number, number];
 
 const SCALE = 0.85; // world units per logo offset (12 of the icon's 64)
 const SIDE = (11 / 12) * Math.SQRT2 * SCALE * 0.96; // square side of one diamond tile
@@ -72,14 +71,14 @@ const GLOW = /* glsl */ `
     float a;
     if (uKind < 0.5) {
       float edge = 1.0 - smoothstep(0.0, 0.05, edgeDist);
-      a = edge * 0.85 + fres * 0.22 + 0.035;
-      col = mix(uColor, vec3(1.0), edge * 0.55);
+      a = edge * 1.1 + fres * 0.45 + 0.09;
+      col = mix(uColor, vec3(1.0), edge * 0.18);
     } else {
       float edge = 1.0 - smoothstep(0.0, 0.08, edgeDist);
       float fins = pow(abs(sin(vUv.x * 3.14159 * 14.0)), 5.0);
       float core = 1.0 - smoothstep(0.1, 0.75, length(vUv - 0.5) * 1.4);
-      a = 0.1 + fins * (0.25 + 0.4 * core) + edge * 0.5;
-      col = mix(uColor, vec3(1.0), fins * 0.3 + edge * 0.35);
+      a = 0.2 + fins * (0.45 + 0.55 * core) + edge * 0.7;
+      col = mix(uColor, vec3(1.0), fins * core * 0.12);
     }
     a = a * scan * flicker * uOpacity + sweep * 0.3 * uOpacity;
     a *= smoothstep(0.5, 0.36, length(gl_FragCoord.xy / uRes - 0.5));
@@ -166,13 +165,12 @@ export default function HoloMark({ className = "" }: { className?: string }) {
     const tiles = TILES.map((t) => {
       const node = new Transform();
       node.setParent(group);
-      const color = tint(t.color, t.violet);
-      const light = t.violet > 0.4 ? 0.7 : 1; // dim the light tiles
-      const shell = new Mesh(gl, { geometry: shellGeo, program: glowProgram(color, 0, light) });
+      const color = t.color;
+      const shell = new Mesh(gl, { geometry: shellGeo, program: glowProgram(color, 0, 1) });
       shell.renderOrder = 2;
       shell.setParent(node);
       const plates = Array.from({ length: PLATES }, (_, i) => {
-        const m = new Mesh(gl, { geometry: plateGeo, program: glowProgram(color, 1, light * (0.5 + 0.3 * Math.sin((i / (PLATES - 1)) * Math.PI))) });
+        const m = new Mesh(gl, { geometry: plateGeo, program: glowProgram(color, 1, 0.75 + 0.25 * Math.sin((i / (PLATES - 1)) * Math.PI)) });
         m.renderOrder = 2;
         m.setParent(node);
         return m;
