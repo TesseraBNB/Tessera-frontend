@@ -84,7 +84,7 @@ export default function Home() {
               How it works
             </a>
             <span className="ml-1 inline-flex items-center gap-2 font-mono text-[0.72rem] tracking-wide text-bone-faint">
-              <Cpu size={13} /> Claude Opus 4.8 · via Hermes
+              <Cpu size={13} /> Anthropic Messages API · backend runs on your machine
             </span>
           </div>
         </section>
@@ -204,12 +204,12 @@ export default function Home() {
               <span className="font-mono text-[0.75rem]">Tessera · public-goods intelligence</span>
             </div>
             <a
-              href="https://github.com/yeheskieltame/Tessera"
+              href="https://github.com/TesseraBNB"
               target="_blank"
               rel="noopener noreferrer"
               className="link-grow font-mono text-[0.75rem] text-bone-dim"
             >
-              github.com/yeheskieltame/Tessera
+              github.com/TesseraBNB
             </a>
           </div>
         </footer>

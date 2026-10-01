@@ -6,15 +6,19 @@ import Nav from "@/components/Nav";
 import AgentStream from "@/components/AgentStream";
 import Prose from "@/components/Prose";
 import {
+  API_BASE,
   streamAgent,
   reportURL,
   analyzeEpoch,
   detectAnomalies,
+  getAgentInfo,
   getCurrentEpoch,
   type AgentEvent,
   type EpochProject,
   type AnomalyReport,
 } from "@/lib/api";
+
+const RUN_LOCALLY_URL = "https://github.com/TesseraBNB/Tessera-backend#run-it-locally";
 
 type Mode = "analyze" | "evaluate" | "explore";
 
@@ -38,6 +42,8 @@ export default function Dashboard() {
             <h1 className="mt-1 font-display text-4xl text-bone">Run the agent</h1>
           </header>
 
+          <BackendNotice />
+
           <div className="mb-8 flex flex-wrap gap-2">
             {MODES.map((m) => {
               const Icon = m.icon;
@@ -59,6 +65,52 @@ export default function Dashboard() {
           {mode === "explore" ? <ExploreView /> : <AgentView mode={mode} />}
         </main>
       </div>
+    </div>
+  );
+}
+
+/* ─────────────── Backend reachability ─────────────── */
+
+// The console talks to a Tessera backend the visitor runs locally; say how to
+// start it (or enable the agent) instead of failing silently.
+function BackendNotice() {
+  const [state, setState] = useState<"checking" | "ok" | "offline" | "no-key">("checking");
+
+  useEffect(() => {
+    let live = true;
+    getAgentInfo()
+      .then((i) => live && setState(i.ready ? "ok" : "no-key"))
+      .catch(() => live && setState("offline"));
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  if (state === "checking" || state === "ok") return null;
+
+  return (
+    // inline styles: the unlayered .panel/.label rules override Tailwind color utilities
+    <div className="panel mb-8 p-5" style={{ borderColor: "color-mix(in srgb, var(--color-warn) 45%, transparent)" }}>
+      <p className="label mb-2" style={{ color: "var(--color-warn)" }}>
+        {state === "offline" ? "Backend not reachable" : "Agent disabled"}
+      </p>
+      <p className="text-[0.88rem] leading-relaxed text-bone-dim">
+        {state === "offline" ? (
+          <>
+            This console talks to a Tessera backend at <code className="font-mono text-bone">{API_BASE}</code>. Start it on
+            your machine with <code className="font-mono text-bone">go run ./cmd/tessera serve</code>, then reload.{" "}
+          </>
+        ) : (
+          <>
+            The backend is running but has no AI key, so Explore works and agent runs are off. Set{" "}
+            <code className="font-mono text-bone">ANTHROPIC_API_KEY</code> in its <code className="font-mono text-bone">.env</code>{" "}
+            and restart it.{" "}
+          </>
+        )}
+        <a href={RUN_LOCALLY_URL} target="_blank" rel="noopener noreferrer" className="link-grow text-signal">
+          Setup guide
+        </a>
+      </p>
     </div>
   );
 }
