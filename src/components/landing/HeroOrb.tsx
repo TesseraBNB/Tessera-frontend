@@ -1,6 +1,5 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
 import Orb from "@/components/reactbits/Orb";
 import { LogoMark } from "@/components/Logo";
 
@@ -14,40 +13,12 @@ const READINGS: { tool: string; value: string; tone?: "warn" | "bad"; pos: strin
   { tool: "simulate_mechanisms", value: "−70% under 1p1v", tone: "bad", pos: "left-[22%] bottom-[4%]", delay: "1.6s" },
 ];
 
-const REDUCED = "(prefers-reduced-motion: reduce)";
-
-// Server snapshot is false so hydration matches; the static orb swaps in after.
-function usePrefersReducedMotion() {
-  return useSyncExternalStore(
-    (onChange) => {
-      const mq = window.matchMedia(REDUCED);
-      mq.addEventListener("change", onChange);
-      return () => mq.removeEventListener("change", onChange);
-    },
-    () => window.matchMedia(REDUCED).matches,
-    () => false,
-  );
-}
-
 export default function HeroOrb() {
-  const reduced = usePrefersReducedMotion();
-
   return (
     <div className="relative h-[380px] w-full sm:h-[480px] lg:h-[600px]">
-      {reduced ? (
-        <div
-          className="absolute inset-[12%] rounded-full"
-          style={{
-            background:
-              "radial-gradient(circle at 50% 50%, transparent 38%, color-mix(in srgb, var(--color-violet) 60%, transparent) 46%, color-mix(in srgb, var(--color-cyan) 35%, transparent) 54%, transparent 66%)",
-          }}
-          aria-hidden
-        />
-      ) : (
-        <div className="absolute inset-0" aria-hidden>
-          <Orb hoverIntensity={0.5} rotateOnHover={true} hue={0} forceHoverState={false} backgroundColor="#07060d" />
-        </div>
-      )}
+      <div className="absolute inset-0" aria-hidden>
+        <Orb hoverIntensity={2} rotateOnHover hue={0} forceHoverState={false} backgroundColor="#000000" />
+      </div>
 
       {/* the agent at the core */}
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3" aria-hidden>

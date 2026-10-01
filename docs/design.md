@@ -30,7 +30,8 @@ calls), `indigo` #101499 (depth). Status: good #4ade9a, warn #f5b544, bad #f0607
 **Motion (3 layers):** ambient — Orb shader + slow chip float + logo loop;
 entrance — BlurText headline, CountUp stats, staged section rise; interaction —
 SpotlightCard cursor light, BorderGlow edge glow, Orb hover warp. Reduced motion
-swaps the WebGL Orb for a static gradient and stops loops; content never hides.
+drops entrance travel, hover lift and smooth scroll but keeps the slow ambient
+loops (the Orb is the hero); content never hides.
 
 **React Bits used:** Orb, BlurText, ShinyText, CountUp, SpotlightCard, BorderGlow,
 LogoLoop — vendored unchanged in `src/components/reactbits/` from the reactbits.dev

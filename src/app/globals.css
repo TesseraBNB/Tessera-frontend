@@ -246,10 +246,10 @@ input::placeholder, textarea::placeholder { color: var(--color-ink-faint); }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 @keyframes sheen { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
-/* Reduced motion: stop loops and travel, keep every element visible. */
+/* Reduced motion: no entrance travel, hover lift or smooth scroll; the slow
+   ambient loops (Orb, chip float) stay. */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .rise { opacity: 1; animation: none; }
-  .animate-float, .animate-pulse-soft, .cursor-blink::after, .skeleton { animation: none; }
   .btn:hover { transform: none; }
 }
