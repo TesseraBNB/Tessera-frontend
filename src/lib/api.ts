@@ -1,12 +1,41 @@
-// API + SSE client for the Tessera Go backend (Railway). The base URL is
-// configured at build time via NEXT_PUBLIC_API_URL; in local dev it defaults
-// to the Go server on :8080.
+// API + SSE client for the Tessera Go backend. Candidates, in order: the backend
+// set at build time via NEXT_PUBLIC_API_URL (e.g. a tunnel to the team's
+// machine), then one on the visitor's own machine at :8080. The first that
+// answers /api/health is used for the rest of the session.
 
-export const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:8080";
+const LOCAL_API = "http://localhost:8080";
 
-async function getJSON<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, init);
+export const API_CANDIDATES = [
+  ...new Set([process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, ""), LOCAL_API].filter((b): b is string => Boolean(b))),
+];
+
+// ngrok's free plan answers browser requests with a warning page unless this
+// header is present (the backend allows it in CORS).
+function headersFor(base: string): Record<string, string> {
+  return /\.ngrok(-free)?\.(app|dev|io)$/.test(new URL(base).hostname) ? { "ngrok-skip-browser-warning": "1" } : {};
+}
+
+let currentBase = API_CANDIDATES[0];
+let resolving: Promise<string> | null = null;
+
+export function apiBase(): Promise<string> {
+  resolving ??= (async () => {
+    for (const base of API_CANDIDATES) {
+      try {
+        const res = await fetch(`${base}/api/health`, { headers: headersFor(base), signal: AbortSignal.timeout(4000) });
+        if (res.ok) return (currentBase = base);
+      } catch {
+        /* unreachable — try the next candidate */
+      }
+    }
+    return currentBase;
+  })();
+  return resolving;
+}
+
+async function getJSON<T>(path: string): Promise<T> {
+  const base = await apiBase();
+  const res = await fetch(`${base}${path}`, { headers: headersFor(base) });
   if (!res.ok) {
     let detail = res.statusText;
     try {
@@ -128,8 +157,9 @@ export const getSimulation = (epoch: number) =>
 export const detectAnomalies = (epoch: number) =>
   getJSON<AnomaliesResponse>(`/api/detect-anomalies?epoch=${epoch}`);
 export const getReports = () => getJSON<ReportsResponse>("/api/reports");
+// Reports exist only after an agent run, by which time the base is resolved.
 export const reportURL = (name: string) =>
-  `${API_BASE}/api/reports/${encodeURIComponent(name)}`;
+  `${currentBase}/api/reports/${encodeURIComponent(name)}`;
 
 /* ─────────────── Agent SSE stream ─────────────── */
 
@@ -162,47 +192,76 @@ const AGENT_EVENT_NAMES: AgentEvent["type"][] = [
 
 /**
  * Opens an SSE stream to an agent endpoint and dispatches typed events.
- * Returns a function that closes the stream.
+ * Returns a function that closes the stream. Uses fetch rather than
+ * EventSource so it can send headers (see headersFor) and surface the
+ * backend's own error message when the run is refused (e.g. 503, 429).
  */
 export function streamAgent(
   path: string,
   params: Record<string, string | undefined>,
   handlers: AgentHandlers,
 ): () => void {
-  const url = new URL(`${API_BASE}${path}`);
-  for (const [k, v] of Object.entries(params)) {
-    if (v) url.searchParams.set(k, v);
-  }
-
-  const es = new EventSource(url.toString());
+  const ctrl = new AbortController();
   let finished = false;
-
-  for (const name of AGENT_EVENT_NAMES) {
-    es.addEventListener(name, (e) => {
-      let data: AgentEvent = { type: name };
-      try {
-        data = { ...(JSON.parse((e as MessageEvent).data) as AgentEvent), type: name };
-      } catch {
-        /* keep bare event */
-      }
-      handlers.onEvent(data);
-      if (name === "result" || name === "error") {
-        finished = true;
-        es.close();
-      }
-    });
-  }
-
-  es.onerror = () => {
-    // EventSource fires onerror on normal close too; only surface if we never finished.
-    if (!finished) {
-      handlers.onError?.("connection to agent lost");
-      es.close();
-    }
-  };
-
-  return () => {
+  const finish = (event?: AgentEvent) => {
     finished = true;
-    es.close();
+    if (event) handlers.onEvent(event);
+    ctrl.abort();
   };
+
+  (async () => {
+    const base = await apiBase();
+    const url = new URL(`${base}${path}`);
+    for (const [k, v] of Object.entries(params)) {
+      if (v) url.searchParams.set(k, v);
+    }
+    const res = await fetch(url, {
+      headers: { Accept: "text/event-stream", ...headersFor(base) },
+      signal: ctrl.signal,
+    });
+    if (!res.ok || !res.body) {
+      let message = `${res.status}: ${res.statusText}`;
+      try {
+        const body = (await res.json()) as { error?: string };
+        if (body.error) message = body.error;
+      } catch {
+        /* non-JSON body */
+      }
+      return finish({ type: "error", error: message });
+    }
+
+    const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
+    let buf = "";
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += value.replace(/\r\n/g, "\n");
+      let end: number;
+      while ((end = buf.indexOf("\n\n")) >= 0) {
+        const block = buf.slice(0, end);
+        buf = buf.slice(end + 2);
+        let name = "";
+        let data = "";
+        for (const line of block.split("\n")) {
+          if (line.startsWith("event:")) name = line.slice(6).trim();
+          else if (line.startsWith("data:")) data += line.slice(5).trim();
+        }
+        const type = name as AgentEvent["type"];
+        if (!AGENT_EVENT_NAMES.includes(type)) continue;
+        let event: AgentEvent = { type };
+        try {
+          event = { ...(JSON.parse(data) as AgentEvent), type };
+        } catch {
+          /* keep bare event */
+        }
+        if (type === "result" || type === "error") return finish(event);
+        handlers.onEvent(event);
+      }
+    }
+    if (!finished) handlers.onError?.("connection to agent lost");
+  })().catch(() => {
+    if (!finished && !ctrl.signal.aborted) handlers.onError?.("connection to agent lost");
+  });
+
+  return () => finish();
 }

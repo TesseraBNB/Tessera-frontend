@@ -6,7 +6,7 @@ import Nav from "@/components/Nav";
 import AgentStream from "@/components/AgentStream";
 import Prose from "@/components/Prose";
 import {
-  API_BASE,
+  API_CANDIDATES,
   streamAgent,
   reportURL,
   analyzeEpoch,
@@ -97,8 +97,15 @@ function BackendNotice() {
       <p className="text-[0.88rem] leading-relaxed text-bone-dim">
         {state === "offline" ? (
           <>
-            This console talks to a Tessera backend at <code className="font-mono text-bone">{API_BASE}</code>. Start it on
-            your machine with <code className="font-mono text-bone">go run ./cmd/tessera serve</code>, then reload.{" "}
+            This console looks for a Tessera backend at{" "}
+            {API_CANDIDATES.map((b, i) => (
+              <span key={b}>
+                {i > 0 && " or "}
+                <code className="font-mono text-bone">{b}</code>
+              </span>
+            ))}
+            . Start one on your machine with <code className="font-mono text-bone">go run ./cmd/tessera serve</code>, then
+            reload.{" "}
           </>
         ) : (
           <>
