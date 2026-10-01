@@ -157,9 +157,6 @@ export const getSimulation = (epoch: number) =>
 export const detectAnomalies = (epoch: number) =>
   getJSON<AnomaliesResponse>(`/api/detect-anomalies?epoch=${epoch}`);
 export const getReports = () => getJSON<ReportsResponse>("/api/reports");
-// Reports exist only after an agent run, by which time the base is resolved.
-export const reportURL = (name: string) =>
-  `${currentBase}/api/reports/${encodeURIComponent(name)}`;
 
 /**
  * Opens a report PDF in a new tab. A plain link would hit ngrok's warning page

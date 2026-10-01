@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import Logo from "./Logo";
+import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { getAgentInfo, type AgentInfo } from "@/lib/api";
 
 const LINKS = [
@@ -54,19 +55,15 @@ export default function Nav() {
 
         <div className="flex items-center gap-2">
           <AgentPill info={info} />
-          <a
+          <LiquidMetalButton
             href="https://github.com/TesseraBNB"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-ghost hidden px-4 py-2 text-[0.8rem] sm:inline-flex"
-          >
-            GitHub <ArrowUpRight size={14} />
-          </a>
-          {pathname !== "/dashboard" && (
-            <Link href="/dashboard" className="btn btn-primary px-4 py-2 text-[0.8rem]">
-              Console
-            </Link>
-          )}
+            external
+            size="sm"
+            label="GitHub"
+            icon={<ArrowUpRight size={14} />}
+            className="hidden! sm:inline-flex!"
+          />
+          {pathname !== "/dashboard" && <LiquidMetalButton href="/dashboard" variant="primary" size="sm" label="Console" />}
         </div>
       </div>
     </header>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import BorderGlow from "@/components/reactbits/BorderGlow";
+import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { FOCUS } from "@/lib/showcase";
 
 const ADDRESS = /^0x[a-fA-F0-9]{40}$/;
@@ -61,9 +62,7 @@ export default function AnalyzeCard() {
               autoComplete="off"
               className="field"
             />
-            <button type="submit" disabled={!valid} className="btn btn-primary shrink-0">
-              Analyze <ArrowRight size={16} strokeWidth={2.4} />
-            </button>
+            <LiquidMetalButton type="submit" variant="primary" disabled={!valid} label="Analyze" icon={<ArrowRight size={16} strokeWidth={2.4} />} />
           </form>
 
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[0.8rem] text-ink-faint">

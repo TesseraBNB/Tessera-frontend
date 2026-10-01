@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Network, Scale, Radar, Waypoints, ShieldCheck, Stamp } from "lucide-react";
 import Nav from "@/components/Nav";
 import { LogoMark } from "@/components/Logo";
+import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import HeroOrb from "@/components/landing/HeroOrb";
 import AnalyzeCard from "@/components/landing/AnalyzeCard";
 import { TrustGraph, MechanismBars, ChainGrid, CrossChecks } from "@/components/landing/Viz";
@@ -62,12 +62,8 @@ export default function Home() {
             </p>
 
             <div className="rise mt-8 flex flex-wrap items-center gap-3" style={{ animationDelay: "380ms" }}>
-              <Link href="/dashboard" className="btn btn-primary">
-                Run the agent <ArrowRight size={16} strokeWidth={2.4} />
-              </Link>
-              <a href="#evidence" className="btn btn-ghost">
-                See a real run
-              </a>
+              <LiquidMetalButton href="/dashboard" variant="primary" label="Run the agent" icon={<ArrowRight size={16} strokeWidth={2.4} />} />
+              <LiquidMetalButton href="#evidence" label="See a real run" />
             </div>
 
             <dl className="rise mt-10 grid max-w-lg grid-cols-3 gap-4 border-t border-line pt-6" style={{ animationDelay: "500ms" }}>
@@ -250,17 +246,13 @@ export default function Home() {
                 </h2>
               </div>
               <div className="flex flex-wrap gap-3">
-                <Link href="/dashboard" className="btn btn-primary">
-                  Open the console <ArrowRight size={16} strokeWidth={2.4} />
-                </Link>
-                <a
+                <LiquidMetalButton href="/dashboard" variant="primary" label="Open the console" icon={<ArrowRight size={16} strokeWidth={2.4} />} />
+                <LiquidMetalButton
                   href="https://github.com/TesseraBNB/Tessera-backend#run-it-locally"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-ghost"
-                >
-                  Run it locally <ArrowUpRight size={15} />
-                </a>
+                  external
+                  label="Run it locally"
+                  icon={<ArrowUpRight size={15} />}
+                />
               </div>
             </div>
             <div className="relative mt-10 flex flex-col justify-between gap-3 border-t border-line pt-6 font-mono text-[0.72rem] text-ink-faint sm:flex-row">

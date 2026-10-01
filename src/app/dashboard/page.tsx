@@ -9,7 +9,6 @@ import Prose from "@/components/Prose";
 import {
   API_CANDIDATES,
   streamAgent,
-  reportURL,
   openReport,
   analyzeEpoch,
   detectAnomalies,
@@ -20,6 +19,7 @@ import {
   type AnomalyReport,
 } from "@/lib/api";
 import { FOCUS } from "@/lib/showcase";
+import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 
 const RUN_LOCALLY_URL = "https://github.com/TesseraBNB/Tessera-backend#run-it-locally";
 const ADDRESS = /^0x[a-fA-F0-9]{40}$/;
@@ -247,21 +247,24 @@ function AgentView({ mode, initialAddress }: { mode: "analyze" | "evaluate"; ini
           )}
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
-            <button type="submit" disabled={!canRun} className="btn btn-primary">
-              {running ? <LoaderCircle size={15} className="animate-spin" /> : <ArrowRight size={15} strokeWidth={2.4} />}
-              {running ? "Agent running…" : "Run agent"}
-            </button>
+            <LiquidMetalButton
+              type="submit"
+              variant="primary"
+              disabled={!canRun}
+              label={running ? "Agent running…" : "Run agent"}
+              iconStart={running}
+              icon={running ? <LoaderCircle size={15} className="animate-spin" /> : <ArrowRight size={15} strokeWidth={2.4} />}
+            />
             {running && (
-              <button
-                type="button"
+              <LiquidMetalButton
+                label="Stop"
+                iconStart
+                icon={<Square size={13} />}
                 onClick={() => {
                   stopRef.current?.();
                   setRunning(false);
                 }}
-                className="btn btn-ghost"
-              >
-                <Square size={13} /> Stop
-              </button>
+              />
             )}
             {mode === "analyze" && !running && address.trim() === "" && (
               <button type="button" onClick={() => setAddress(FOCUS.address)} className="link-grow font-mono text-[0.78rem] text-cyan">
@@ -290,18 +293,13 @@ function AgentView({ mode, initialAddress }: { mode: "analyze" | "evaluate"; ini
             <div className="relative mb-4 flex items-center justify-between">
               <p className="eyebrow">Report</p>
               {reportPath && (
-                <a
-                  href={reportURL(reportPath)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-ghost px-4 py-2"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    openReport(reportPath).catch((err: Error) => setError(`report: ${err.message}`));
-                  }}
-                >
-                  <Download size={14} /> PDF
-                </a>
+                <LiquidMetalButton
+                  size="sm"
+                  label="PDF"
+                  iconStart
+                  icon={<Download size={14} />}
+                  onClick={() => openReport(reportPath).catch((err: Error) => setError(`report: ${err.message}`))}
+                />
               )}
             </div>
             <div className="relative">
@@ -375,10 +373,14 @@ function ExploreView() {
             min={1}
           />
         </Field>
-        <button type="submit" disabled={loading || epoch === ""} className="btn btn-primary">
-          {loading ? <LoaderCircle size={15} className="animate-spin" /> : <ChartColumn size={15} />}
-          Load epoch
-        </button>
+        <LiquidMetalButton
+          type="submit"
+          variant="primary"
+          disabled={loading || epoch === ""}
+          label="Load epoch"
+          iconStart
+          icon={loading ? <LoaderCircle size={15} className="animate-spin" /> : <ChartColumn size={15} />}
+        />
         <p className="basis-full text-[0.8rem] text-ink-faint sm:basis-auto">
           Composite ranking and anomaly scan — pure analytics, no AI key needed.
         </p>
