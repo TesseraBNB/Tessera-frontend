@@ -14,6 +14,7 @@ import { ATTESTATIONS, EPOCH, EPOCH_ANOMALIES, FOCUS, TOOLS, TRACE, VERDICT } fr
 
 const SOURCES = [
   "Octant",
+  "Gitcoin Grants",
   "Open Source Observer",
   "GitHub",
   "Octant forum",
