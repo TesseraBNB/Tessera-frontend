@@ -3,17 +3,20 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ArrowUpRight } from "lucide-react";
 import Logo from "./Logo";
 import { getAgentInfo, type AgentInfo } from "@/lib/api";
 
 const LINKS = [
   { href: "/", label: "Overview" },
-  { href: "/dashboard", label: "Dashboard" },
+  { href: "/#evidence", label: "Evidence" },
+  { href: "/#method", label: "Method" },
+  { href: "/dashboard", label: "Console" },
 ];
 
 export default function Nav() {
   const pathname = usePathname();
-  const [info, setInfo] = useState<AgentInfo | null>(null);
+  const [info, setInfo] = useState<AgentInfo | null | undefined>(undefined);
 
   useEffect(() => {
     let live = true;
@@ -26,48 +29,66 @@ export default function Nav() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-bg/75 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
+    <header className="sticky top-0 z-50 px-4 pt-4">
+      <div className="glass mx-auto flex max-w-6xl items-center justify-between gap-3 rounded-full bg-night/80 py-2 pr-2 pl-5">
         <Link href="/" aria-label="Tessera home" className="transition-opacity hover:opacity-80">
           <Logo />
         </Link>
 
-        <nav className="flex items-center gap-1.5">
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
           {LINKS.map((l) => {
             const active = pathname === l.href;
             return (
               <Link
                 key={l.href}
                 href={l.href}
-                className={`rounded-lg px-3 py-1.5 font-mono text-[0.8rem] tracking-wide transition-colors ${
-                  active ? "bg-raised text-bone" : "text-bone-dim hover:text-bone"
+                className={`rounded-full px-4 py-2 text-[0.85rem] font-medium transition-colors ${
+                  active ? "bg-white/[0.07] text-ink" : "text-ink-dim hover:text-ink"
                 }`}
               >
                 {l.label}
               </Link>
             );
           })}
-          <AgentPill info={info} />
         </nav>
+
+        <div className="flex items-center gap-2">
+          <AgentPill info={info} />
+          <a
+            href="https://github.com/TesseraBNB"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-ghost hidden px-4 py-2 text-[0.8rem] sm:inline-flex"
+          >
+            GitHub <ArrowUpRight size={14} />
+          </a>
+          {pathname !== "/dashboard" && (
+            <Link href="/dashboard" className="btn btn-primary px-4 py-2 text-[0.8rem]">
+              Console
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   );
 }
 
-function AgentPill({ info }: { info: AgentInfo | null }) {
+// undefined = still checking, null = backend unreachable
+function AgentPill({ info }: { info: AgentInfo | null | undefined }) {
   const ready = info?.ready ?? false;
+  const label = info === undefined ? "checking" : info ? info.model.replace("claude-", "") || "agent" : "offline";
   return (
     <span
-      className="ml-1 hidden items-center gap-2 rounded-full border border-line px-3 py-1.5 sm:inline-flex"
-      title={info ? `Backends: ${info.backends.join(", ") || "none"}` : "Agent status unknown"}
+      className="hidden max-w-[15rem] items-center gap-2 rounded-full border border-line-bright/70 px-3 py-1.5 lg:inline-flex"
+      title={info ? `Agent backends: ${info.backends.join(", ") || "none"}` : "Tessera backend not reachable"}
     >
       <span
-        className={`h-1.5 w-1.5 rounded-full ${ready ? "bg-signal pulse-soft" : "bg-bad"}`}
+        className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+          ready ? "animate-pulse-soft bg-good" : info === undefined ? "bg-ink-faint" : "bg-bad"
+        }`}
         aria-hidden
       />
-      <span className="font-mono text-[0.7rem] tracking-wide text-bone-dim">
-        {info ? (info.model.replace("claude-", "") || "agent") : "offline"}
-      </span>
+      <span className="truncate font-mono text-[0.68rem] text-ink-dim">{label}</span>
     </span>
   );
 }

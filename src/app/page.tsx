@@ -1,216 +1,274 @@
 import Link from "next/link";
-import { ArrowRight, Network, Scale, Boxes, Globe, ShieldCheck, Cpu } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Network, Scale, Radar, Waypoints, ShieldCheck, Stamp } from "lucide-react";
 import Nav from "@/components/Nav";
 import { LogoMark } from "@/components/Logo";
-
-const TOOLS = [
-  "epoch",
-  "history",
-  "ranking",
-  "trust-graph",
-  "mechanisms",
-  "on-chain",
-  "oso",
-  "github",
-  "forum",
-  "retropgf",
-];
-
-const CAPS = [
-  {
-    icon: Network,
-    title: "Trust-graph forensics",
-    body: "Shannon-entropy donor diversity, Jaccard donor overlap, and whale-dependency ratios surface Sybil and coordination risk that funding totals hide.",
-  },
-  {
-    icon: Scale,
-    title: "Mechanism simulation",
-    body: "Replays each epoch under Standard, Capped, Equal-weight, and Trust-weighted quadratic funding — with Gini and top-share — to test how robust an allocation really is.",
-  },
-  {
-    icon: Boxes,
-    title: "On-chain reconnaissance",
-    body: "Scans an address across eleven EVM chains (BNB Chain first) for native balance, transaction history, contract status, and stablecoin holdings.",
-  },
-  {
-    icon: Globe,
-    title: "Cross-ecosystem validation",
-    body: "Corroborates a project against Open Source Observer, GitHub, the Octant forum, and Optimism RetroPGF — independent signals, not self-report.",
-  },
-];
+import HeroOrb from "@/components/landing/HeroOrb";
+import AnalyzeCard from "@/components/landing/AnalyzeCard";
+import { TrustGraph, MechanismBars, ChainGrid, CrossChecks } from "@/components/landing/Viz";
+import BlurText from "@/components/reactbits/BlurText";
+import ShinyText from "@/components/reactbits/ShinyText";
+import CountUp from "@/components/reactbits/CountUp";
+import SpotlightCard from "@/components/reactbits/SpotlightCard";
+import LogoLoop from "@/components/reactbits/LogoLoop";
+import { ATTESTATIONS, EPOCH, EPOCH_ANOMALIES, FOCUS, TOOLS, TRACE, VERDICT } from "@/lib/showcase";
 
 const SOURCES = [
   "Octant",
-  "Gitcoin",
   "Open Source Observer",
   "GitHub",
   "Octant forum",
   "Optimism RetroPGF",
-  "BNB Chain + 10 EVM chains",
+  "BNB Smart Chain",
+  "opBNB",
+  "Ethereum",
+  "Base",
+  "Optimism",
+  "Arbitrum",
+  "Mantle",
+  "Scroll",
+  "Linea",
+  "zkSync Era",
 ];
+
+const SPOT = "rgba(156, 67, 254, 0.16)" as const;
 
 export default function Home() {
   return (
-    <div className="grain relative min-h-screen overflow-hidden">
-      <div className="tess-field pointer-events-none absolute inset-0 opacity-50" aria-hidden />
-      <div className="glow-ember pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[820px] -translate-x-1/2 opacity-70" aria-hidden />
+    <div className="relative min-h-screen overflow-x-clip">
+      <div className="sky pointer-events-none absolute inset-0" aria-hidden />
+      <div className="grid-fade pointer-events-none absolute inset-x-0 top-0 h-[900px]" aria-hidden />
+
       <div className="relative">
         <Nav />
 
-        {/* Hero */}
-        <section className="mx-auto max-w-6xl px-5 pt-20 pb-16 sm:pt-28">
-          <p className="label rise" style={{ animationDelay: "0ms" }}>
-            Autonomous public-goods intelligence
-          </p>
-          <h1
-            className="rise mt-5 max-w-4xl font-display text-5xl leading-[1.05] text-bone sm:text-7xl"
-            style={{ animationDelay: "60ms" }}
-          >
-            Evidence over <span className="italic text-ember">narrative.</span>
-          </h1>
-          <p
-            className="rise mt-6 max-w-2xl text-lg leading-relaxed text-bone-dim"
-            style={{ animationDelay: "140ms" }}
-          >
-            Tessera is an autonomous agent that evaluates Ethereum public-goods funding the way a
-            skeptical analyst would — pulling live on-chain, trust-graph, and ecosystem data, then
-            reasoning to a verdict you can defend. Every figure is traced to a tool call, never invented.
-          </p>
-          <div className="rise mt-9 flex flex-wrap items-center gap-3" style={{ animationDelay: "220ms" }}>
-            <Link href="/dashboard" className="btn btn-ember">
-              Run the agent <ArrowRight size={16} strokeWidth={2.4} />
-            </Link>
-            <a href="#method" className="btn btn-ghost">
-              How it works
-            </a>
-            <span className="ml-1 inline-flex items-center gap-2 font-mono text-[0.72rem] tracking-wide text-bone-faint">
-              <Cpu size={13} /> Anthropic Messages API · backend runs on your machine
+        {/* ─── Hero: copy left, the agent (Orb) right ─── */}
+        <section className="mx-auto grid max-w-6xl items-center gap-6 px-5 pt-12 pb-10 lg:grid-cols-[1.05fr_1fr] lg:pt-16">
+          <div>
+            <span className="chip rise">
+              <span className="h-1.5 w-1.5 animate-pulse-soft rounded-full bg-good" aria-hidden />
+              <ShinyText text="Live on Octant · BNB Chain first" color="#a6a1c4" shineColor="#ffffff" speed={3} />
             </span>
-          </div>
-        </section>
 
-        {/* Live agent showcase */}
-        <section className="mx-auto max-w-6xl px-5 pb-20">
-          <div className="panel relative overflow-hidden p-6 sm:p-8">
-            <div className="glow-signal pointer-events-none absolute -right-20 -top-20 h-64 w-64 opacity-60" aria-hidden />
-            <div className="relative flex items-center justify-between">
-              <p className="label">Live agent trace</p>
-              <span className="inline-flex items-center gap-2 font-mono text-[0.72rem] text-signal">
-                <span className="h-1.5 w-1.5 rounded-full bg-signal pulse-soft" /> streaming
-              </span>
+            <h1 className="sr-only">Evidence over narrative.</h1>
+            <div aria-hidden className="mt-6 font-display text-5xl leading-[1.04] font-semibold tracking-[-0.04em] sm:text-6xl lg:text-7xl">
+              <BlurText text="Evidence over" delay={120} className="text-ink" />
+              <BlurText text="narrative." delay={120} className="text-glow text-violet-bright" />
             </div>
 
-            <div className="relative mt-5 flex flex-wrap gap-1.5">
-              {TOOLS.map((t, i) => (
-                <span
-                  key={t}
-                  className={`tile inline-flex items-center gap-1.5 px-2.5 py-1.5 font-mono text-[0.68rem] tracking-wide ${
-                    i < 5 ? "tile-active text-signal-bright" : "text-bone-faint"
-                  }`}
-                >
-                  <span className={`h-1.5 w-1.5 rotate-45 ${i < 5 ? "bg-signal" : "bg-bone-faint/40"}`} />
-                  {t}
-                </span>
+            <p className="rise mt-6 max-w-xl text-[1.05rem] leading-relaxed text-ink-dim" style={{ animationDelay: "250ms" }}>
+              Tessera is an autonomous agent for public-goods funding. It decides which evidence to pull — Octant
+              rounds, donor overlap, mechanism replays, eleven chains — and reasons to a verdict where every figure
+              traces back to a tool call.
+            </p>
+
+            <div className="rise mt-8 flex flex-wrap items-center gap-3" style={{ animationDelay: "380ms" }}>
+              <Link href="/dashboard" className="btn btn-primary">
+                Run the agent <ArrowRight size={16} strokeWidth={2.4} />
+              </Link>
+              <a href="#evidence" className="btn btn-ghost">
+                See a real run
+              </a>
+            </div>
+
+            <dl className="rise mt-10 grid max-w-lg grid-cols-3 gap-4 border-t border-line pt-6" style={{ animationDelay: "500ms" }}>
+              <Stat value={TOOLS.length} label="agent tools" />
+              <Stat value={11} label="chains scanned, BNB first" />
+              <Stat value={EPOCH_ANOMALIES.donations} label="donations screened" />
+            </dl>
+          </div>
+
+          <HeroOrb />
+        </section>
+
+        {/* ─── The calculator: start a run ─── */}
+        <section className="mx-auto max-w-5xl px-5 pb-24">
+          <AnalyzeCard />
+        </section>
+
+        {/* ─── One real run ─── */}
+        <section id="evidence" className="mx-auto max-w-6xl scroll-mt-28 px-5 pb-24">
+          <SectionHead
+            eyebrow="One real run"
+            title={`${FOCUS.name}, Octant epoch ${EPOCH}`}
+            sub={`Payout address ${FOCUS.short}, analyzed on 2026-10-01. Eight tool calls, chosen by the agent, in the order it made them.`}
+          />
+
+          <div className="mt-10 grid gap-5 lg:grid-cols-[1.5fr_1fr]">
+            <ol className="glass divide-y divide-line/70 p-2 sm:p-3">
+              {TRACE.map((t, i) => (
+                <li key={t.tool} className="grid grid-cols-[2rem_1fr] gap-x-3 gap-y-1 px-3 py-3 sm:grid-cols-[2rem_12rem_1fr]">
+                  <span className="font-mono text-[0.7rem] text-ink-faint">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="font-mono text-[0.78rem] text-cyan">{t.tool}</span>
+                  <span className="col-start-2 text-[0.86rem] text-ink-dim sm:col-start-3">{t.result}</span>
+                </li>
               ))}
-            </div>
+            </ol>
 
-            <div className="relative mt-6 space-y-2.5 font-mono text-[0.82rem]">
-              <TraceLine glyph="call" tone="signal">get_project_history <span className="text-bone-faint">address=0x4f…b21</span></TraceLine>
-              <TraceLine glyph="result">found in 5 epochs · 18.4 ETH allocated · 1,204 unique donors</TraceLine>
-              <TraceLine glyph="call" tone="signal">get_trust_profile <span className="text-bone-faint">epoch=5</span></TraceLine>
-              <TraceLine glyph="result">donor diversity 0.91 · whale dependency 6% · coordination risk 0.12</TraceLine>
-              <TraceLine glyph="think">Donor base is broad and organic; whale exposure is low. Cross-checking on-chain reality…</TraceLine>
+            <div className="flex flex-col gap-5">
+              <div className="glass-strong relative overflow-hidden p-6">
+                <div className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-warn/15 blur-3xl" aria-hidden />
+                <p className="eyebrow flex items-center gap-2">
+                  <Stamp size={13} /> Verdict
+                </p>
+                <p className="mt-3 font-display text-3xl font-semibold text-warn">{VERDICT.call}</p>
+                <p className="mt-3 text-[0.88rem] leading-relaxed text-ink-dim">{VERDICT.why}</p>
+              </div>
+
+              <div className="glass p-6">
+                <p className="eyebrow">The whole epoch</p>
+                <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-5">
+                  <Stat value={EPOCH_ANOMALIES.donations} label="donations" />
+                  <Stat value={EPOCH_ANOMALIES.donors} label="unique donors" />
+                  <Stat value={EPOCH_ANOMALIES.top10Share} suffix="%" label="of funding from the top 10% of donors" tone="warn" />
+                  <Stat value={EPOCH_ANOMALIES.identicalDonations} label="identical 0.002 ETH donations flagged" tone="warn" />
+                </dl>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Capabilities */}
-        <section className="mx-auto max-w-6xl px-5 pb-20">
-          <h2 className="font-display text-3xl text-bone sm:text-4xl">What the agent can see</h2>
-          <div className="mt-8 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2">
-            {CAPS.map((c) => {
-              const Icon = c.icon;
-              return (
-                <div key={c.title} className="bg-surface p-6 transition-colors hover:bg-raised">
-                  <Icon size={22} className="text-ember" strokeWidth={1.8} />
-                  <h3 className="mt-4 text-lg text-bone">{c.title}</h3>
-                  <p className="mt-2 text-[0.9rem] leading-relaxed text-bone-dim">{c.body}</p>
-                </div>
-              );
-            })}
+        {/* ─── What the agent can see ─── */}
+        <section className="mx-auto max-w-6xl px-5 pb-24">
+          <SectionHead
+            eyebrow="Instruments"
+            title="What the agent can see"
+            sub={`Each card is drawn from the same epoch-${EPOCH} run — real values, not illustrations.`}
+          />
+
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <SpotlightCard spotlightColor={SPOT} className="border-line! bg-surface/70! p-6!">
+              <CardHead icon={Network} title="Trust-graph forensics">
+                Donor overlap between all 24 projects. The focus project (violet) has its highest overlap,
+                Jaccard 0.458, with the runner-up (amber edge).
+              </CardHead>
+              <div className="mt-5 rounded-2xl border border-line bg-void/50 p-3">
+                <TrustGraph />
+              </div>
+            </SpotlightCard>
+
+            <SpotlightCard spotlightColor={SPOT} className="border-line! bg-surface/70! p-6!">
+              <CardHead icon={Scale} title="Mechanism simulation">
+                The same epoch replayed under four funding rules. This allocation survives quadratic variants and
+                collapses under one-person-one-vote.
+              </CardHead>
+              <div className="mt-5">
+                <MechanismBars />
+              </div>
+              <p className="mt-4 font-mono text-[0.68rem] text-ink-faint">
+                Gini is for the whole round — lower means funds are spread more evenly.
+              </p>
+            </SpotlightCard>
+
+            <SpotlightCard spotlightColor={SPOT} className="border-line! bg-surface/70! p-6!">
+              <CardHead icon={Radar} title="On-chain reconnaissance">
+                Eleven EVM chains probed in parallel, BNB Chain networks first: balances, transactions, contract
+                status, stablecoins.
+              </CardHead>
+              <div className="mt-5">
+                <ChainGrid />
+              </div>
+            </SpotlightCard>
+
+            <SpotlightCard spotlightColor={SPOT} className="border-line! bg-surface/70! p-6!">
+              <CardHead icon={Waypoints} title="Cross-ecosystem validation">
+                Independent sources instead of self-report. When a source has nothing, the report says so instead of
+                guessing.
+              </CardHead>
+              <div className="mt-4">
+                <CrossChecks />
+              </div>
+            </SpotlightCard>
           </div>
         </section>
 
-        {/* How it works */}
-        <section id="method" className="mx-auto max-w-6xl px-5 pb-20">
-          <p className="label">The method</p>
-          <h2 className="mt-1 max-w-3xl font-display text-3xl text-bone sm:text-4xl">
-            A real tool-calling loop, not a wrapper
-          </h2>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
+        {/* ─── Method ─── */}
+        <section id="method" className="mx-auto max-w-6xl scroll-mt-28 px-5 pb-20">
+          <SectionHead eyebrow="The method" title="A real tool-calling loop, not a wrapper" />
+
+          <div className="relative mt-10 grid gap-5 md:grid-cols-3">
+            <div
+              className="pointer-events-none absolute top-11 right-[16%] left-[16%] hidden h-px bg-gradient-to-r from-violet/0 via-violet/60 to-cyan/0 md:block"
+              aria-hidden
+            />
             {[
-              { n: "01", t: "Decide", d: "Given a project or proposal, the agent chooses which tools to call — and in what order — based on what it still needs to know." },
-              { n: "02", t: "Gather", d: "Each tool runs inside Tessera against live sources and returns real data. Nothing is exposed to the network; nothing is fabricated." },
-              { n: "03", t: "Reason", d: "It weighs the evidence — counterfactual impact, Sybil risk, mechanism sensitivity — then writes a verdict and a downloadable PDF." },
+              { n: "01", t: "Decide", d: "Given an address or a proposal, the model picks the next tool from what it still needs to know." },
+              { n: "02", t: "Gather", d: "Tools run inside the Tessera process against live sources. No tool endpoint is exposed to the network." },
+              { n: "03", t: "Reason", d: "It weighs counterfactual impact, Sybil risk and mechanism sensitivity, then writes a verdict and a PDF." },
             ].map((s) => (
-              <div key={s.n} className="panel p-6">
-                <span className="font-mono text-sm text-signal">{s.n}</span>
-                <h3 className="mt-3 text-xl text-bone">{s.t}</h3>
-                <p className="mt-2 text-[0.9rem] leading-relaxed text-bone-dim">{s.d}</p>
+              <div key={s.n} className="glass relative p-6">
+                <span className="grid h-10 w-10 place-items-center rounded-full border border-violet/40 bg-violet/15 font-mono text-[0.78rem] text-violet-bright">
+                  {s.n}
+                </span>
+                <h3 className="mt-5 text-xl font-semibold text-ink">{s.t}</h3>
+                <p className="mt-2 text-[0.9rem] leading-relaxed text-ink-dim">{s.d}</p>
               </div>
             ))}
           </div>
-          <div className="mt-6 flex items-center gap-2.5 font-mono text-[0.78rem] text-bone-faint">
-            <ShieldCheck size={15} className="text-good" />
-            Tools execute in-process — no public tool endpoints, no SSRF surface.
-          </div>
-        </section>
 
-        {/* Sources */}
-        <section className="mx-auto max-w-6xl px-5 pb-20">
-          <p className="label mb-4">Grounded in</p>
-          <div className="flex flex-wrap gap-2.5">
-            {SOURCES.map((s) => (
-              <span key={s} className="rounded-full border border-line px-4 py-2 font-mono text-[0.76rem] text-bone-dim">
-                {s}
+          <div className="mt-6 flex flex-wrap gap-2">
+            {TOOLS.map((t) => (
+              <span key={t} className="tile px-3 py-1.5 font-mono text-[0.7rem] text-ink-dim">
+                {t}
               </span>
             ))}
           </div>
+
+          <div className="mt-6 flex flex-col gap-3 text-[0.82rem] text-ink-faint sm:flex-row sm:items-center sm:gap-8">
+            <span className="flex items-center gap-2">
+              <ShieldCheck size={15} className="text-good" /> Tools execute in-process — no public tool endpoints.
+            </span>
+            <a href={ATTESTATIONS.url} target="_blank" rel="noopener noreferrer" className="link-grow flex items-center gap-2">
+              <Stamp size={15} className="text-warn" /> Verdicts can be notarized on BSC testnet · {ATTESTATIONS.short}
+            </a>
+          </div>
         </section>
 
-        {/* CTA */}
-        <section className="mx-auto max-w-6xl px-5 pb-24">
-          <div className="panel-raised relative overflow-hidden p-10 text-center">
-            <div className="tess-field pointer-events-none absolute inset-0 opacity-40" aria-hidden />
-            <div className="relative">
-              <LogoMark size={40} />
-              <h2 className="mx-auto mt-5 max-w-2xl font-display text-3xl text-bone sm:text-4xl">
-                Point it at a project. Watch it find the truth.
-              </h2>
-              <div className="mt-7 flex justify-center">
-                <Link href="/dashboard" className="btn btn-ember">
+        {/* ─── Sources ─── */}
+        <section className="pb-24" aria-label="Data sources">
+          <p className="eyebrow mb-6 text-center">Grounded in</p>
+          <LogoLoop
+            logos={SOURCES.map((s) => ({ node: <span className="chip text-[0.78rem] text-ink-dim">{s}</span>, title: s }))}
+            speed={50}
+            logoHeight={34}
+            gap={14}
+            pauseOnHover
+            fadeOut
+            fadeOutColor="#07060d"
+            ariaLabel="Data sources Tessera reads"
+          />
+        </section>
+
+        {/* ─── Footer card ─── */}
+        <footer className="mx-auto max-w-6xl px-5 pb-10">
+          <div className="glass-strong relative overflow-hidden p-8 sm:p-12">
+            <div className="pointer-events-none absolute -bottom-40 left-1/2 h-80 w-[40rem] -translate-x-1/2 rounded-full bg-violet/25 blur-3xl" aria-hidden />
+            <div className="relative flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
+              <div>
+                <LogoMark size={38} />
+                <h2 className="mt-5 max-w-xl text-3xl font-semibold text-ink sm:text-4xl">
+                  Point it at a project. Read the evidence.
+                </h2>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/dashboard" className="btn btn-primary">
                   Open the console <ArrowRight size={16} strokeWidth={2.4} />
                 </Link>
+                <a
+                  href="https://github.com/TesseraBNB/Tessera-backend#run-it-locally"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-ghost"
+                >
+                  Run it locally <ArrowUpRight size={15} />
+                </a>
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="border-t border-line">
-          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 sm:flex-row">
-            <div className="flex items-center gap-2.5 text-bone-faint">
-              <LogoMark size={20} />
-              <span className="font-mono text-[0.75rem]">Tessera · public-goods intelligence</span>
+            <div className="relative mt-10 flex flex-col justify-between gap-3 border-t border-line pt-6 font-mono text-[0.72rem] text-ink-faint sm:flex-row">
+              <span>Tessera · public-goods intelligence</span>
+              <a href="https://github.com/TesseraBNB" target="_blank" rel="noopener noreferrer" className="link-grow">
+                github.com/TesseraBNB
+              </a>
             </div>
-            <a
-              href="https://github.com/TesseraBNB"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="link-grow font-mono text-[0.75rem] text-bone-dim"
-            >
-              github.com/TesseraBNB
-            </a>
           </div>
         </footer>
       </div>
@@ -218,27 +276,39 @@ export default function Home() {
   );
 }
 
-function TraceLine({
-  glyph,
-  tone,
-  children,
-}: {
-  glyph: "call" | "result" | "think";
-  tone?: "signal";
-  children: React.ReactNode;
-}) {
-  const mark =
-    glyph === "call" ? (
-      <span className="mt-1.5 h-2 w-2 rotate-45 bg-signal" />
-    ) : glyph === "result" ? (
-      <span className="mt-1.5 h-2 w-2 rotate-45 border border-good bg-good/30" />
-    ) : (
-      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-ember" />
-    );
+function SectionHead({ eyebrow, title, sub }: { eyebrow: string; title: string; sub?: string }) {
   return (
-    <div className="flex items-start gap-3">
-      <span className="shrink-0" aria-hidden>{mark}</span>
-      <span className={tone === "signal" ? "text-signal-bright" : "text-bone-dim"}>{children}</span>
+    <div className="max-w-2xl">
+      <p className="eyebrow">{eyebrow}</p>
+      <h2 className="mt-3 text-3xl font-semibold text-ink sm:text-4xl">{title}</h2>
+      {sub && <p className="mt-3 text-[0.95rem] leading-relaxed text-ink-dim">{sub}</p>}
+    </div>
+  );
+}
+
+function CardHead({ icon: Icon, title, children }: { icon: typeof Network; title: string; children: React.ReactNode }) {
+  return (
+    <div className="relative">
+      <span className="grid h-10 w-10 place-items-center rounded-xl border border-violet/30 bg-violet/10 text-violet-bright">
+        <Icon size={19} strokeWidth={1.8} />
+      </span>
+      <h3 className="mt-4 text-lg font-semibold text-ink">{title}</h3>
+      <p className="mt-1.5 text-[0.88rem] leading-relaxed text-ink-dim">{children}</p>
+    </div>
+  );
+}
+
+function Stat({ value, label, suffix, tone }: { value: number; label: string; suffix?: string; tone?: "warn" }) {
+  return (
+    <div>
+      <dt className="sr-only">{label}</dt>
+      <dd className={`font-display text-2xl font-semibold sm:text-3xl ${tone === "warn" ? "text-warn" : "text-ink"}`}>
+        <CountUp to={value} separator="," duration={1.6} />
+        {suffix}
+      </dd>
+      <dd className="mt-1 text-[0.76rem] leading-snug text-ink-faint" aria-hidden>
+        {label}
+      </dd>
     </div>
   );
 }

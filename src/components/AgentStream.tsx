@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import type { AgentEvent } from "@/lib/api";
 
 // Tool catalog: display labels for the agent's tools, in roughly the order the
-// agent tends to use them. Drives the tessellation strip.
+// agent tends to use them. Drives the tool strip.
 const TOOLS: [string, string][] = [
   ["get_current_epoch", "Epoch"],
   ["get_project_history", "History"],
@@ -45,7 +45,7 @@ export default function AgentStream({
 
   return (
     <div className="space-y-5">
-      {/* Tessellation strip — tiles light up as tools fire */}
+      {/* Tool strip — tiles light up as tools fire */}
       <div className="flex flex-wrap gap-1.5" aria-hidden>
         {TOOLS.map(([name, label]) => {
           const on = called.has(name);
@@ -53,12 +53,12 @@ export default function AgentStream({
           return (
             <span
               key={name}
-              className={`tile inline-flex items-center gap-1.5 px-2.5 py-1.5 font-mono text-[0.68rem] tracking-wide transition-all duration-300 ${
-                on ? "tile-active text-signal-bright" : "text-bone-faint"
+              className={`tile inline-flex items-center gap-1.5 px-3 py-1.5 font-mono text-[0.68rem] tracking-wide transition-all duration-300 ${
+                on ? "tile-on text-cyan-bright" : "text-ink-faint"
               }`}
             >
               <span
-                className={`h-1.5 w-1.5 rotate-45 ${on ? "bg-signal" : "bg-bone-faint/40"} ${busy ? "pulse-soft" : ""}`}
+                className={`h-1.5 w-1.5 rounded-full ${on ? "bg-cyan" : "bg-ink-faint/40"} ${busy ? "animate-pulse-soft" : ""}`}
               />
               {label}
             </span>
@@ -74,9 +74,9 @@ export default function AgentStream({
               <li key={i} className="flex items-start gap-3 rise" style={{ animationDelay: `${Math.min(i, 8) * 20}ms` }}>
                 <Glyph kind="call" />
                 <div className="min-w-0">
-                  <span className="font-mono text-[0.8rem] text-signal-bright">{labelFor(e.tool)}</span>
+                  <span className="font-mono text-[0.8rem] text-cyan-bright">{labelFor(e.tool)}</span>
                   {summarize(e.input) && (
-                    <span className="ml-2 font-mono text-[0.72rem] text-bone-faint">{summarize(e.input)}</span>
+                    <span className="ml-2 font-mono text-[0.72rem] text-ink-faint">{summarize(e.input)}</span>
                   )}
                 </div>
               </li>
@@ -86,7 +86,7 @@ export default function AgentStream({
             return (
               <li key={i} className="flex items-start gap-3 pl-0.5">
                 <Glyph kind={e.isError ? "error" : "result"} />
-                <p className="min-w-0 truncate font-mono text-[0.72rem] text-bone-faint">
+                <p className="min-w-0 truncate font-mono text-[0.72rem] text-ink-faint">
                   {e.isError ? "error: " : ""}
                   {preview(e.result)}
                 </p>
@@ -97,7 +97,7 @@ export default function AgentStream({
           return (
             <li key={i} className="flex items-start gap-3 rise">
               <Glyph kind="think" />
-              <p className={`min-w-0 text-[0.9rem] leading-relaxed text-bone-dim ${running && i === lastTextIdx ? "cursor-blink" : ""}`}>
+              <p className={`min-w-0 text-[0.9rem] leading-relaxed text-ink-dim ${running && i === lastTextIdx ? "cursor-blink" : ""}`}>
                 {e.text}
               </p>
             </li>
@@ -105,8 +105,8 @@ export default function AgentStream({
         })}
 
         {running && timeline.length === 0 && (
-          <li className="flex items-center gap-3 text-bone-faint">
-            <span className="spin h-3.5 w-3.5 rounded-full border-2 border-line-bright border-t-signal" />
+          <li className="flex items-center gap-3 text-ink-faint">
+            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-line-bright border-t-violet-bright" />
             <span className="font-mono text-[0.78rem]">agent is thinking…</span>
           </li>
         )}
@@ -117,10 +117,10 @@ export default function AgentStream({
 
 function Glyph({ kind }: { kind: "call" | "result" | "error" | "think" }) {
   const map = {
-    call: <span className="mt-1 h-2 w-2 rotate-45 bg-signal" />,
-    result: <span className="mt-1 h-2 w-2 rotate-45 border border-good bg-good/30" />,
-    error: <span className="mt-1 h-2 w-2 rotate-45 bg-bad" />,
-    think: <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-ember" />,
+    call: <span className="mt-1 block h-2 w-2 rounded-full bg-cyan" />,
+    result: <span className="mt-1 block h-2 w-2 rounded-full border border-good bg-good/30" />,
+    error: <span className="mt-1 block h-2 w-2 rounded-full bg-bad" />,
+    think: <span className="mt-1.5 block h-2 w-2 rotate-45 bg-violet-bright" />,
   };
   return <span className="shrink-0" aria-hidden>{map[kind]}</span>;
 }

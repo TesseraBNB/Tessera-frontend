@@ -20,28 +20,28 @@ export default function OpengraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#0a0c0e",
+          background: "radial-gradient(900px 600px at 85% 20%, #2a1260, #07060d 70%)",
           padding: 72,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={mark} width={68} height={68} alt="" />
-          <div style={{ fontSize: 38, color: "#ece7da", letterSpacing: -1 }}>Tessera</div>
+          <div style={{ fontSize: 38, color: "#f1eefc", letterSpacing: -1 }}>Tessera</div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <div style={{ display: "flex", flexWrap: "wrap", fontSize: 82, letterSpacing: -2, lineHeight: 1 }}>
-            <span style={{ color: "#ece7da" }}>Evidence over&nbsp;</span>
-            <span style={{ color: "#e8633a" }}>narrative.</span>
+            <span style={{ color: "#f1eefc" }}>Evidence over&nbsp;</span>
+            <span style={{ color: "#b98cff" }}>narrative.</span>
           </div>
-          <div style={{ display: "flex", fontSize: 27, color: "#9ba39f", maxWidth: 940 }}>
+          <div style={{ display: "flex", fontSize: 27, color: "#a6a1c4", maxWidth: 940 }}>
             An autonomous agent for Ethereum public-goods funding — live trust-graph, mechanism, and on-chain analysis.
           </div>
         </div>
 
-        <div style={{ display: "flex", fontSize: 21, color: "#46d6d0", fontFamily: "monospace" }}>
-          Octant · Gitcoin · OSO · GitHub · Optimism RetroPGF · BNB Chain + EVM chains
+        <div style={{ display: "flex", fontSize: 21, color: "#4cc2e9", fontFamily: "monospace" }}>
+          Octant · OSO · GitHub · Optimism RetroPGF · BNB Chain + 10 EVM chains
         </div>
       </div>
     ),

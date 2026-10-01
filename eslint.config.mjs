@@ -13,6 +13,17 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // React Bits components, vendored as the reactbits.dev registry ships them.
+  {
+    files: ["src/components/reactbits/**"],
+    linterOptions: { reportUnusedDisableDirectives: "off" },
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "react-hooks/exhaustive-deps": "off",
+      "react-hooks/set-state-in-effect": "off",
+      "@next/next/no-img-element": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

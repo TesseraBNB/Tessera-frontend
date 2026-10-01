@@ -7,7 +7,7 @@ import { Fragment, type ReactNode } from "react";
  * but faithful to what the agent emits.
  */
 export default function Prose({ markdown }: { markdown: string }) {
-  return <div className="prose-tessera">{renderBlocks(markdown)}</div>;
+  return <div className="prose-tessera [overflow-wrap:anywhere]">{renderBlocks(markdown)}</div>;
 }
 
 function inline(text: string, keyBase: string): ReactNode[] {
@@ -16,12 +16,12 @@ function inline(text: string, keyBase: string): ReactNode[] {
   return parts.map((p, i) => {
     const key = `${keyBase}-${i}`;
     if (/^\*\*[^*]+\*\*$/.test(p))
-      return <strong key={key} className="font-semibold text-bone">{p.slice(2, -2)}</strong>;
+      return <strong key={key} className="font-semibold text-ink">{p.slice(2, -2)}</strong>;
     if (/^\*[^*]+\*$/.test(p))
-      return <em key={key} className="italic text-bone">{p.slice(1, -1)}</em>;
+      return <em key={key} className="italic text-ink">{p.slice(1, -1)}</em>;
     if (/^`[^`]+`$/.test(p))
       return (
-        <code key={key} className="rounded bg-void px-1.5 py-0.5 font-mono text-[0.85em] text-signal">
+        <code key={key} className="rounded bg-void px-1.5 py-0.5 font-mono text-[0.85em] text-cyan">
           {p.slice(1, -1)}
         </code>
       );
@@ -49,7 +49,7 @@ function renderBlocks(md: string): ReactNode[] {
       while (i < lines.length && !lines[i].trim().startsWith("```")) buf.push(lines[i++]);
       i++; // closing fence
       out.push(
-        <pre key={next()} className="my-4 overflow-x-auto rounded-lg border border-line bg-void p-4 font-mono text-[0.8rem] text-bone-dim">
+        <pre key={next()} className="my-4 overflow-x-auto rounded-xl border border-line bg-void/70 p-4 font-mono text-[0.8rem] text-ink-dim">
           <code>{buf.join("\n")}</code>
         </pre>,
       );
@@ -68,10 +68,10 @@ function renderBlocks(md: string): ReactNode[] {
     if (h) {
       const level = h[1].length;
       const cls = [
-        "mt-7 mb-3 font-display text-3xl text-bone",
-        "mt-7 mb-3 font-display text-2xl text-bone",
-        "mt-6 mb-2 font-mono text-[0.7rem] uppercase tracking-[0.2em] text-signal",
-        "mt-5 mb-2 font-semibold text-bone",
+        "mt-7 mb-3 font-display text-3xl font-semibold text-ink",
+        "mt-7 mb-3 font-display text-2xl font-semibold text-ink",
+        "mt-6 mb-2 font-mono text-[0.7rem] uppercase tracking-[0.2em] text-cyan",
+        "mt-5 mb-2 font-semibold text-ink",
       ][level - 1];
       const content = inline(h[2], `h${next()}`);
       out.push(
@@ -92,7 +92,7 @@ function renderBlocks(md: string): ReactNode[] {
       const buf: string[] = [];
       while (i < lines.length && lines[i].startsWith(">")) buf.push(lines[i++].replace(/^>\s?/, ""));
       out.push(
-        <blockquote key={next()} className="my-4 border-l-2 border-ember pl-4 text-bone-dim italic">
+        <blockquote key={next()} className="my-4 border-l-2 border-violet pl-4 text-ink-dim italic">
           {inline(buf.join(" "), `bq${key}`)}
         </blockquote>,
       );
@@ -111,7 +111,7 @@ function renderBlocks(md: string): ReactNode[] {
             <thead>
               <tr className="border-b border-line-bright">
                 {header.map((c, j) => (
-                  <th key={j} className="px-3 py-2 text-left font-mono text-[0.7rem] uppercase tracking-wider text-bone-dim">
+                  <th key={j} className="px-3 py-2 text-left font-mono text-[0.7rem] uppercase tracking-wider text-ink-dim">
                     {inline(c, `th${key}-${j}`)}
                   </th>
                 ))}
@@ -121,7 +121,7 @@ function renderBlocks(md: string): ReactNode[] {
               {rows.map((r, ri) => (
                 <tr key={ri} className="border-b border-line/60">
                   {r.map((c, ci) => (
-                    <td key={ci} className="px-3 py-2 font-mono text-[0.82rem] text-bone">{inline(c, `td${key}-${ri}-${ci}`)}</td>
+                    <td key={ci} className="px-3 py-2 font-mono text-[0.82rem] text-ink">{inline(c, `td${key}-${ri}-${ci}`)}</td>
                   ))}
                 </tr>
               ))}
@@ -139,8 +139,8 @@ function renderBlocks(md: string): ReactNode[] {
       out.push(
         <ul key={next()} className="my-3 space-y-1.5 pl-1">
           {items.map((it, j) => (
-            <li key={j} className="flex gap-2.5 text-bone-dim">
-              <span className="mt-2 h-1 w-1 shrink-0 rotate-45 bg-ember" aria-hidden />
+            <li key={j} className="flex gap-2.5 text-ink-dim">
+              <span className="mt-2 h-1 w-1 shrink-0 rotate-45 bg-violet-bright" aria-hidden />
               <span>{inline(it, `li${key}-${j}`)}</span>
             </li>
           ))}
@@ -156,8 +156,8 @@ function renderBlocks(md: string): ReactNode[] {
       out.push(
         <ol key={next()} className="my-3 space-y-1.5">
           {items.map((it, j) => (
-            <li key={j} className="flex gap-2.5 text-bone-dim">
-              <span className="font-mono text-xs text-signal">{String(j + 1).padStart(2, "0")}</span>
+            <li key={j} className="flex gap-2.5 text-ink-dim">
+              <span className="font-mono text-xs text-cyan">{String(j + 1).padStart(2, "0")}</span>
               <span>{inline(it, `ol${key}-${j}`)}</span>
             </li>
           ))}
@@ -172,7 +172,7 @@ function renderBlocks(md: string): ReactNode[] {
       buf.push(lines[i++]);
     }
     out.push(
-      <p key={next()} className="my-3 leading-relaxed text-bone-dim">{inline(buf.join(" "), `p${key}`)}</p>,
+      <p key={next()} className="my-3 leading-relaxed text-ink-dim">{inline(buf.join(" "), `p${key}`)}</p>,
     );
   }
 

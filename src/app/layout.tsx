@@ -1,22 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Instrument_Serif, Schibsted_Grotesk, IBM_Plex_Mono } from "next/font/google";
+import { Sora, Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const display = Instrument_Serif({
+const display = Sora({
   subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
+  weight: ["400", "500", "600", "700"],
   variable: "--ff-display",
   display: "swap",
 });
 
-const sans = Schibsted_Grotesk({
+const sans = Manrope({
   subsets: ["latin"],
   variable: "--ff-sans",
   display: "swap",
 });
 
-const mono = IBM_Plex_Mono({
+const mono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--ff-mono",
@@ -32,7 +31,7 @@ export const metadata: Metadata = {
     template: "%s · Tessera",
   },
   description:
-    "An autonomous agent that evaluates Ethereum public-goods funding with evidence, not narrative — live trust-graph, mechanism, and on-chain analysis across Octant, Gitcoin, and Optimism RetroPGF.",
+    "An autonomous agent that evaluates Ethereum public-goods funding with evidence, not narrative — live trust-graph, mechanism, and on-chain analysis across Octant and Optimism RetroPGF, BNB Chain first.",
   applicationName: "Tessera",
   authors: [{ name: "Yeheskiel Yunus Tame" }],
   openGraph: {
@@ -45,7 +44,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0c0e",
+  themeColor: "#07060d",
 };
 
 export default function RootLayout({
