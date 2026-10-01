@@ -39,6 +39,8 @@ export interface StatusResponse {
 
 export interface EpochResponse {
   currentEpoch: number;
+  // most recent epoch with funding data; the counter keeps advancing past it
+  latestFundedEpoch?: number;
 }
 
 export interface EpochProject {

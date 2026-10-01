@@ -102,7 +102,8 @@ function AgentView({ mode }: { mode: "analyze" | "evaluate" }) {
           setReportPath(e.reportPath);
           setRunning(false);
         } else if (e.type === "error") {
-          setError(e.error ?? "agent error");
+          // the agent's own error event carries its message in `text`
+          setError(e.error ?? e.text ?? "agent error");
           setRunning(false);
         }
       },
@@ -227,7 +228,7 @@ function ExploreView() {
 
   useEffect(() => {
     getCurrentEpoch()
-      .then((e) => setEpoch(e.currentEpoch))
+      .then((e) => setEpoch(e.latestFundedEpoch ?? e.currentEpoch))
       .catch(() => {});
   }, []);
 
