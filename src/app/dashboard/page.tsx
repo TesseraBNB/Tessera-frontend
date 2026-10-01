@@ -9,6 +9,7 @@ import {
   API_CANDIDATES,
   streamAgent,
   reportURL,
+  openReport,
   analyzeEpoch,
   detectAnomalies,
   getAgentInfo,
@@ -252,7 +253,16 @@ function AgentView({ mode }: { mode: "analyze" | "evaluate" }) {
             <div className="relative mb-4 flex items-center justify-between">
               <p className="label">Report</p>
               {reportPath && (
-                <a href={reportURL(reportPath)} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
+                <a
+                  href={reportURL(reportPath)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-ghost"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openReport(reportPath).catch((err: Error) => setError(`report: ${err.message}`));
+                  }}
+                >
                   <Download size={14} /> PDF
                 </a>
               )}

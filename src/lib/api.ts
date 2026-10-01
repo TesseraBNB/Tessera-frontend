@@ -161,6 +161,25 @@ export const getReports = () => getJSON<ReportsResponse>("/api/reports");
 export const reportURL = (name: string) =>
   `${currentBase}/api/reports/${encodeURIComponent(name)}`;
 
+/**
+ * Opens a report PDF in a new tab. A plain link would hit ngrok's warning page
+ * through a tunnel, so the PDF is fetched with headersFor() and shown as a blob.
+ * Call it directly from a click handler: the tab opens before any await so pop-up
+ * blockers allow it.
+ */
+export async function openReport(name: string): Promise<void> {
+  const tab = window.open("", "_blank");
+  const base = await apiBase();
+  const res = await fetch(`${base}/api/reports/${encodeURIComponent(name)}`, { headers: headersFor(base) });
+  if (!res.ok) {
+    tab?.close();
+    throw new Error(`${res.status}: ${res.statusText}`);
+  }
+  const url = URL.createObjectURL(await res.blob());
+  if (tab) tab.location.href = url;
+  else window.location.href = url;
+}
+
 /* ─────────────── Agent SSE stream ─────────────── */
 
 export interface AgentEvent {
