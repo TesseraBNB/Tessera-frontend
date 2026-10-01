@@ -1,7 +1,7 @@
 "use client";
 
 import Orb from "@/components/reactbits/Orb";
-import { LogoMark } from "@/components/Logo";
+import HoloMark from "@/components/landing/HoloMark";
 
 // Readings the agent took in the recorded epoch-10 run (lib/showcase.ts), orbiting
 // the Orb that stands for the agent. `hideSm` chips drop out on narrow screens.
@@ -20,10 +20,9 @@ export default function HeroOrb() {
         <Orb hoverIntensity={2} rotateOnHover hue={0} forceHoverState={false} backgroundColor="#000000" />
       </div>
 
-      {/* the agent at the core */}
-      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3" aria-hidden>
-        <LogoMark size={54} />
-        <span className="font-mono text-[0.65rem] uppercase tracking-[0.3em] text-ink-dim">agent</span>
+      {/* the agent at the core: the Tessera mark as a hologram */}
+      <div className="pointer-events-none absolute inset-0 grid place-items-center">
+        <HoloMark className="h-[300px] w-[300px] sm:h-[380px] sm:w-[380px] lg:h-[440px] lg:w-[440px]" />
       </div>
 
       <ul className="pointer-events-none absolute inset-0" aria-label="Readings from a recorded run on Octant epoch 10">
