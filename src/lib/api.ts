@@ -1,7 +1,7 @@
 // API + SSE client for the Tessera Go backend. Candidates, in order: the backend
-// set at build time via NEXT_PUBLIC_API_URL (e.g. a tunnel to the team's
-// machine), then one on the visitor's own machine at :8080. The first that
-// answers /api/health is used for the rest of the session.
+// set at build time via NEXT_PUBLIC_API_URL (the hosted API on Railway), then
+// one on the visitor's own machine at :8080. The first that answers
+// /api/health is used for the rest of the session.
 
 const LOCAL_API = "http://localhost:8080";
 
