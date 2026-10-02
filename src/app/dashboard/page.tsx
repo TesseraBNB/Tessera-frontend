@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Download, LoaderCircle, Search, FlaskConical, ChartColumn, ArrowRight, Square } from "lucide-react";
 import Nav from "@/components/Nav";
 import AgentStream from "@/components/AgentStream";
+import NotaryPanel from "@/components/NotaryPanel";
 import Prose from "@/components/Prose";
 import {
   API_CANDIDATES,
@@ -157,6 +158,7 @@ function AgentView({ mode, initialAddress }: { mode: "analyze" | "evaluate"; ini
   const [running, setRunning] = useState(false);
   const [report, setReport] = useState<string>();
   const [reportPath, setReportPath] = useState<string>();
+  const [run, setRun] = useState<{ id: string; verdict?: string }>();
   const [error, setError] = useState<string>();
   const stopRef = useRef<(() => void) | null>(null);
 
@@ -167,6 +169,7 @@ function AgentView({ mode, initialAddress }: { mode: "analyze" | "evaluate"; ini
     setEvents([]);
     setReport(undefined);
     setReportPath(undefined);
+    setRun(undefined);
     setError(undefined);
     setRunning(true);
 
@@ -182,6 +185,7 @@ function AgentView({ mode, initialAddress }: { mode: "analyze" | "evaluate"; ini
         if (e.type === "result") {
           setReport(e.report);
           setReportPath(e.reportPath);
+          if (e.reportId) setRun({ id: e.reportId, verdict: e.verdict });
           setRunning(false);
         } else if (e.type === "error") {
           // the agent's own error event carries its message in `text`
@@ -286,6 +290,8 @@ function AgentView({ mode, initialAddress }: { mode: "analyze" | "evaluate"; ini
             <AgentStream events={events} running={running} />
           </div>
         )}
+
+        {report && run && <NotaryPanel reportId={run.id} report={report} verdict={run.verdict} />}
 
         {report && (
           <div className="glass-strong relative overflow-hidden p-6 sm:p-8">

@@ -13,6 +13,7 @@ const LINKS = [
   { href: "/#evidence", label: "Evidence" },
   { href: "/#method", label: "Method" },
   { href: "/dashboard", label: "Console" },
+  { href: "/verify", label: "Verify" },
 ];
 
 export default function Nav() {

@@ -215,7 +215,7 @@ export default function Home() {
               <ShieldCheck size={15} className="text-good" /> Tools execute in-process — no public tool endpoints.
             </span>
             <a href={ATTESTATIONS.url} target="_blank" rel="noopener noreferrer" className="link-grow flex items-center gap-2">
-              <Stamp size={15} className="text-warn" /> Verdicts can be notarized on BSC testnet · {ATTESTATIONS.short}
+              <Stamp size={15} className="text-warn" /> Verdicts are notarised on BNB Chain · BAS schema {ATTESTATIONS.short}
             </a>
           </div>
         </section>

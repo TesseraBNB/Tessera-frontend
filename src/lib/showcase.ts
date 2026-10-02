@@ -68,10 +68,11 @@ export const CROSS_CHECKS: { source: string; status: string; found: boolean }[] 
   { source: "GitHub", status: "needs owner/repo", found: false },
 ];
 
+/** Tessera's verdict schema on the BNB Attestation Service (BSC testnet). */
 export const ATTESTATIONS = {
-  address: "0x56e6472693982df91df33842f1d087f2e4308427",
-  short: "0x56e6…8427",
-  url: "https://testnet.bscscan.com/address/0x56e6472693982df91df33842f1d087f2e4308427#code",
+  schemaUid: "0xcd4d38906641353fefefe1caabcba23f730b0512039c1b3c5478d47cf97373f8",
+  short: "0xcd4d…73f8",
+  url: "https://www.testnet.bascan.io/schema/0xcd4d38906641353fefefe1caabcba23f730b0512039c1b3c5478d47cf97373f8",
 };
 
 /** The agent's tools, as the Go registry names them. */

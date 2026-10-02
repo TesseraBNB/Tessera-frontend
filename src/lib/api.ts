@@ -158,6 +158,57 @@ export const detectAnomalies = (epoch: number) =>
   getJSON<AnomaliesResponse>(`/api/detect-anomalies?epoch=${epoch}`);
 export const getReports = () => getJSON<ReportsResponse>("/api/reports");
 
+/* ─────────────── Verdict notary (BAS on BNB Chain) ─────────────── */
+
+export interface NotaryInfo {
+  enabled: boolean;
+  chainId: number;
+  contract: string;
+  rpcUrl: string;
+  schema: string;
+  schemaUid: string;
+  attester?: string;
+  explorer: string;
+}
+
+export interface NotaryReceipt {
+  uid: string;
+  txHash: string;
+  block: number;
+  chainId: number;
+  attester: string;
+  schemaUid: string;
+  time: string;
+  attestationUrl: string;
+  txUrl: string;
+  reportUri: string;
+  reportHash: string;
+  evidenceHash: string;
+  verdict: string;
+}
+
+export const getNotaryInfo = () => getJSON<NotaryInfo>("/api/notary");
+
+/** Records a stored run's verdict on BNB Chain; returns the existing receipt if already done. */
+export async function notarize(reportId: string): Promise<NotaryReceipt> {
+  const base = await apiBase();
+  const res = await fetch(`${base}/api/notarize?id=${encodeURIComponent(reportId)}`, { method: "POST", headers: headersFor(base) });
+  if (!res.ok) {
+    let detail = `${res.status}: ${res.statusText}`;
+    try {
+      const body = (await res.json()) as { error?: string };
+      if (body.error) detail = body.error;
+    } catch {
+      /* non-JSON body */
+    }
+    throw new Error(detail);
+  }
+  return res.json() as Promise<NotaryReceipt>;
+}
+
+/** A stored run file (report .md, .evidence.json) on the current backend. */
+export const runFileURL = (name: string) => `${currentBase}/api/reports/${encodeURIComponent(name)}`;
+
 /**
  * Opens a report PDF in a new tab. A plain link would hit ngrok's warning page
  * through a tunnel, so the PDF is fetched with headersFor() and shown as a blob.
@@ -189,6 +240,9 @@ export interface AgentEvent {
   // emitted on the final "result" event
   report?: string;
   reportPath?: string;
+  reportId?: string; // the stored run, for notarisation
+  reportHash?: string; // keccak256 of report
+  verdict?: string; // FUND | HOLD | REJECT | UNSPECIFIED
   error?: string;
 }
 
