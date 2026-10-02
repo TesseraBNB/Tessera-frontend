@@ -3,14 +3,14 @@
 import Orb from "@/components/reactbits/Orb";
 import HoloMark from "@/components/landing/HoloMark";
 
-// Readings the agent took in the recorded epoch-10 run (lib/showcase.ts), orbiting
+// Readings the agent took in the notarised rotki run (lib/showcase.ts), orbiting
 // the Orb that stands for the agent. `hideSm` chips drop out on narrow screens.
-const READINGS: { tool: string; value: string; tone?: "warn" | "bad"; pos: string; delay: string; hideSm?: boolean }[] = [
-  { tool: "rank_projects", value: "#1 of 24 · epoch 10", pos: "left-[2%] top-[14%]", delay: "0s" },
-  { tool: "scan_chain", value: "11 chains · active on 2", pos: "right-[0%] top-[8%]", delay: "1.2s", hideSm: true },
-  { tool: "get_trust_profile", value: "whale dependency 45.8%", tone: "warn", pos: "left-0 top-[52%] sm:-left-[4%]", delay: "2.1s" },
-  { tool: "get_project_history", value: "donors 80 → 52", pos: "right-[-2%] top-[58%]", delay: "0.6s", hideSm: true },
-  { tool: "simulate_mechanisms", value: "−70% under 1p1v", tone: "bad", pos: "left-[22%] bottom-[4%]", delay: "1.6s" },
+const READINGS: { tool: string; value: string; tone?: "warn" | "good"; pos: string; delay: string; hideSm?: boolean }[] = [
+  { tool: "find_in_gitcoin", value: "50 rounds · 28,850 donors", pos: "left-[2%] top-[14%]", delay: "0s" },
+  { tool: "get_oso_metrics", value: "575 contributors · $1.86M", pos: "right-[0%] top-[8%]", delay: "1.2s", hideSm: true },
+  { tool: "get_trust_profile", value: "whale dependency 43.1%", tone: "warn", pos: "left-0 top-[52%] sm:-left-[4%]", delay: "2.1s" },
+  { tool: "get_project_history", value: "donors 192 → 49", pos: "right-[-2%] top-[58%]", delay: "0.6s", hideSm: true },
+  { tool: "simulate_mechanisms", value: "+132% under 1p1v", tone: "good", pos: "left-[22%] bottom-[4%]", delay: "1.6s" },
 ];
 
 export default function HeroOrb() {
@@ -35,7 +35,7 @@ export default function HeroOrb() {
               <span className="text-[0.62rem] text-cyan">{r.tool}</span>
               <span
                 className={`font-sans text-[0.82rem] font-semibold ${
-                  r.tone === "bad" ? "text-bad" : r.tone === "warn" ? "text-warn" : "text-ink"
+                  r.tone === "good" ? "text-good" : r.tone === "warn" ? "text-warn" : "text-ink"
                 }`}
               >
                 {r.value}

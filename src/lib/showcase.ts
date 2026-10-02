@@ -1,31 +1,46 @@
-// Figures for the landing page, copied from a recorded agent run and live Octant
-// data (backend repo: examples/agent-trace-epoch10.md, Slides/deck/data.json).
-// Octant's closed epochs do not change, so these stay true.
+// Figures for the landing page. The run is a live agent analysis of rotki on
+// 2026-10-02, served by the hosted API and notarised on BNB Chain; every number
+// below is copied from its evidence file (each tool call with its raw result):
+//   https://tessera-api-production-bef4.up.railway.app/api/reports/project_analysis__0x9531c059098e3d194ff8_20261002_085356.evidence.json
+// Epoch-wide figures and the donor graph come from live Octant data
+// (backend repo: Slides/deck/data.json). Octant's closed epochs do not change.
 
 export const EPOCH = 10;
 
 export const FOCUS = {
-  address: "0xe2F7cF9C2b12c0BfcdAB571F9E50418fC08F4AD1",
-  short: "0xe2F7…4AD1",
-  // name from Octant's project metadata on IPFS; the agent itself only sees the address
-  name: "Solidity",
+  address: "0x9531c059098e3d194ff87febb587ab07b30b1306",
+  short: "0x9531…1306",
+  // the agent learned the name from its own tools (Gitcoin + OSO, matched by address)
+  name: "rotki",
 };
 
 /** The run's tool calls, in the order the agent made them. */
 export const TRACE: { tool: string; input: string; result: string }[] = [
-  { tool: "get_project_history", input: "address", result: "epoch 8: 80 donors, 22.36 ETH · epoch 10: 52 donors, 46.29 ETH" },
   { tool: "get_current_epoch", input: "—", result: "current epoch 17 · latest funded epoch 10" },
-  { tool: "rank_projects", input: "epoch 10", result: "#1 of 24, composite score 100 (#2 scores 75.08)" },
-  { tool: "get_trust_profile", input: "epoch 10", result: "donor diversity 0.305 · whale dependency 0.458 · 38 of 52 donors repeat" },
-  { tool: "simulate_mechanisms", input: "epoch 10", result: "this project: +8.9% standard · −3.1% capped · −70.0% one-person-one-vote" },
-  { tool: "scan_chain", input: "address", result: "11 chains · active on 2 (Ethereum 8 txs, Optimism 4) · EOA" },
-  { tool: "find_in_retropgf", input: "address", result: "not found in Optimism RetroPGF" },
-  { tool: "get_oso_metrics", input: "address", result: "no Open Source Observer record" },
+  { tool: "find_in_gitcoin", input: "address", result: "matched by address as rotki: 50 rounds since Feb 2020, 28,850 unique donors, $165,242 donated + $448,564 matched" },
+  { tool: "get_oso_metrics", input: "address", result: "3,398 stars · 575 contributors · 18,296 commits · $1.86M received from 7 funding sources" },
+  { tool: "get_project_history", input: "address", result: "7 Octant epochs (1–6, 10), 123.19 ETH in total · donors 192 → 49" },
+  { tool: "rank_projects", input: "epoch 10", result: "#11 of 24, composite score 14.73" },
+  { tool: "get_trust_profile", input: "epoch 10", result: "donor diversity 0.414 · whale dependency 0.431 · 32 of 49 donors repeat" },
+  { tool: "simulate_mechanisms", input: "epoch 10", result: "rotki gains under every rule: +91.5% standard QF · +106% trust-weighted · +132% one-person-one-vote" },
+  { tool: "scan_chain", input: "address", result: "active on 5 of 11 chains · 662 txs (Optimism 220, Ethereum 217, Arbitrum 208, Base 17)" },
+  { tool: "get_github_signals", input: "rotki/rotki", result: "4,041 stars · 768 forks · last push the day of the run" },
+  { tool: "find_in_retropgf", input: "name", result: "no RetroPGF match by name (OSO records $799,912 of Optimism Retro Funding)" },
+  { tool: "get_forum_sentiment", input: "rotki", result: "4 Octant forum topics · 65 replies from 6 authors" },
+  { tool: "get_gitcoin_trust_profile", input: "42161:608", result: "GG22 OSS dApps: 312 donors · diversity 0.758 · whale dependency 0.145 · max overlap 0.168" },
 ];
 
 export const VERDICT = {
-  call: "Hold / Investigate",
-  why: "Ranked #1 by funding, but the donor base shrank from 80 to 52 while funding doubled, one donor supplies 45.8% of direct allocations, and the allocation falls 70% under one-person-one-vote. OSO and RetroPGF had nothing on it — reported as evidence gaps, not filled in.",
+  call: "Fund",
+  why: "Funded since 2020 across 50 Gitcoin rounds and 7 Octant epochs, $1.86M from seven sources, and an active codebase (18,296 commits, 575 contributors). Its share grows under every alternative funding rule. Risks it names: the Octant donor base fell from 192 to 49 and one donor gives 43% of its epoch-10 allocations, while its Gitcoin donors are far broader (diversity 0.76).",
+};
+
+/** The run's verdict on BNB Chain (BNB Attestation Service, BSC testnet). */
+export const NOTARIZED = {
+  uid: "0x658f69a6952bca3e1bdc1aba86df2b788460ceb21e1b1ff1e8cc9d9184dd8b48",
+  short: "0x658f…8b48",
+  url: "https://www.testnet.bascan.io/attestation/0x658f69a6952bca3e1bdc1aba86df2b788460ceb21e1b1ff1e8cc9d9184dd8b48",
+  verify: "/verify?uid=0x658f69a6952bca3e1bdc1aba86df2b788460ceb21e1b1ff1e8cc9d9184dd8b48",
 };
 
 /** /api/detect-anomalies?epoch=10 */
@@ -37,22 +52,22 @@ export const EPOCH_ANOMALIES = {
   identicalDonations: 24,
 };
 
-/** simulate_mechanisms, epoch 10: Gini of the whole round + the focus project's change */
+/** simulate_mechanisms, epoch 10: Gini of the whole round + rotki's change vs what it received */
 export const MECHANISMS: { name: string; gini: number; change: number }[] = [
-  { name: "Standard QF", gini: 0.396, change: 8.9 },
-  { name: "Trust-weighted QF", gini: 0.372, change: 8.1 },
-  { name: "Capped QF (10%)", gini: 0.363, change: -3.1 },
-  { name: "One person, one vote", gini: 0.167, change: -70.0 },
+  { name: "Standard QF", gini: 0.396, change: 91.5 },
+  { name: "Trust-weighted QF", gini: 0.372, change: 106.0 },
+  { name: "Capped QF (10%)", gini: 0.363, change: 113.3 },
+  { name: "One person, one vote", gini: 0.167, change: 131.8 },
 ];
 
-/** scan_chain on the focus address: BNB Chain networks first, as the scanner orders them */
+/** scan_chain on rotki's address: BNB Chain networks first, as the scanner orders them */
 export const CHAINS: { name: string; id: number; txs: number }[] = [
   { name: "BNB Smart Chain", id: 56, txs: 0 },
   { name: "opBNB", id: 204, txs: 0 },
-  { name: "Ethereum", id: 1, txs: 8 },
-  { name: "Base", id: 8453, txs: 0 },
-  { name: "Optimism", id: 10, txs: 4 },
-  { name: "Arbitrum", id: 42161, txs: 0 },
+  { name: "Ethereum", id: 1, txs: 217 },
+  { name: "Base", id: 8453, txs: 17 },
+  { name: "Optimism", id: 10, txs: 220 },
+  { name: "Arbitrum", id: 42161, txs: 208 },
   { name: "Mantle", id: 5000, txs: 0 },
   { name: "Scroll", id: 534352, txs: 0 },
   { name: "Linea", id: 59144, txs: 0 },
@@ -60,12 +75,13 @@ export const CHAINS: { name: string; id: number; txs: number }[] = [
   { name: "BSC Testnet", id: 97, txs: 0 },
 ];
 
-/** Cross-ecosystem lookups and what they returned for the focus project */
+/** Cross-ecosystem lookups and what they returned for rotki */
 export const CROSS_CHECKS: { source: string; status: string; found: boolean }[] = [
-  { source: "Octant rounds", status: "2 epochs of history", found: true },
-  { source: "Optimism RetroPGF", status: "not found", found: false },
-  { source: "Open Source Observer", status: "needs a project name", found: false },
-  { source: "GitHub", status: "needs owner/repo", found: false },
+  { source: "Gitcoin Grants", status: "50 rounds · $613,806", found: true },
+  { source: "Open Source Observer", status: "$1.86M from 7 sources", found: true },
+  { source: "GitHub", status: "4,041 stars", found: true },
+  { source: "Octant forum", status: "4 topics · 65 replies", found: true },
+  { source: "Optimism RetroPGF", status: "name lookup missed it", found: false },
 ];
 
 /** Tessera's verdict schema on the BNB Attestation Service (BSC testnet). */

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Network, Scale, Radar, Waypoints, ShieldCheck, Stamp } from "lucide-react";
 import Nav from "@/components/Nav";
 import { LogoMark } from "@/components/Logo";
@@ -10,7 +11,7 @@ import ShinyText from "@/components/reactbits/ShinyText";
 import CountUp from "@/components/reactbits/CountUp";
 import SpotlightCard from "@/components/reactbits/SpotlightCard";
 import LogoLoop from "@/components/reactbits/LogoLoop";
-import { ATTESTATIONS, EPOCH, EPOCH_ANOMALIES, FOCUS, TOOLS, TRACE, VERDICT } from "@/lib/showcase";
+import { ATTESTATIONS, EPOCH, EPOCH_ANOMALIES, FOCUS, NOTARIZED, TOOLS, TRACE, VERDICT } from "@/lib/showcase";
 
 const SOURCES = [
   "Octant",
@@ -87,7 +88,7 @@ export default function Home() {
           <SectionHead
             eyebrow="One real run"
             title={`${FOCUS.name}, Octant epoch ${EPOCH}`}
-            sub={`Payout address ${FOCUS.short}, analyzed on 2026-10-01. Eight tool calls, chosen by the agent, in the order it made them.`}
+            sub={`Payout address ${FOCUS.short}, analysed on 2026-10-02 and notarised on BNB Chain. ${TRACE.length} tool calls, chosen by the agent, in the order it made them.`}
           />
 
           <div className="mt-10 grid gap-5 lg:grid-cols-[1.5fr_1fr]">
@@ -103,12 +104,20 @@ export default function Home() {
 
             <div className="flex flex-col gap-5">
               <div className="glass-strong relative overflow-hidden p-6">
-                <div className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-warn/15 blur-3xl" aria-hidden />
+                <div className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-good/15 blur-3xl" aria-hidden />
                 <p className="eyebrow flex items-center gap-2">
                   <Stamp size={13} /> Verdict
                 </p>
-                <p className="mt-3 font-display text-3xl font-semibold text-warn">{VERDICT.call}</p>
+                <p className="mt-3 font-display text-3xl font-semibold text-good">{VERDICT.call}</p>
                 <p className="mt-3 text-[0.88rem] leading-relaxed text-ink-dim">{VERDICT.why}</p>
+                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line pt-4 font-mono text-[0.74rem]">
+                  <a href={NOTARIZED.url} target="_blank" rel="noopener noreferrer" className="link-grow inline-flex items-center gap-1 text-cyan">
+                    notarised on BNB Chain · {NOTARIZED.short} <ArrowUpRight size={12} />
+                  </a>
+                  <Link href={NOTARIZED.verify} className="link-grow text-ink-dim">
+                    verify this report
+                  </Link>
+                </div>
               </div>
 
               <div className="glass p-6">
@@ -135,8 +144,8 @@ export default function Home() {
           <div className="mt-10 grid gap-5 md:grid-cols-2">
             <SpotlightCard spotlightColor={SPOT} className="border-line! bg-surface/70! p-6!">
               <CardHead icon={Network} title="Trust-graph forensics">
-                Donor overlap between all 24 projects. The focus project (violet) has its highest overlap,
-                Jaccard 0.458, with the runner-up (amber edge).
+                Donor overlap between all 24 projects in epoch 10. rotki (violet) shares the most donors with
+                the epoch&apos;s top-funded project (amber edge), Jaccard 0.31 — far below the 0.7 coordination flag.
               </CardHead>
               <div className="mt-5 rounded-2xl border border-line bg-void/50 p-3">
                 <TrustGraph />
@@ -145,8 +154,8 @@ export default function Home() {
 
             <SpotlightCard spotlightColor={SPOT} className="border-line! bg-surface/70! p-6!">
               <CardHead icon={Scale} title="Mechanism simulation">
-                The same epoch replayed under four funding rules. This allocation survives quadratic variants and
-                collapses under one-person-one-vote.
+                The same epoch replayed under four funding rules. rotki would receive more under every one of
+                them than it actually got — the opposite of a whale-propped allocation.
               </CardHead>
               <div className="mt-5">
                 <MechanismBars />

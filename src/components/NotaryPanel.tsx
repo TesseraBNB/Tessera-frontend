@@ -125,6 +125,14 @@ export default function NotaryPanel({
               </a>{" "}
               <span className="text-ink-faint">block {receipt.block.toLocaleString()} · chain {receipt.chainId}</span>
             </Row>
+            {receipt.registryTxUrl && (
+              <Row label="Tessera registry">
+                <a href={receipt.registryTxUrl} target="_blank" rel="noopener noreferrer" className="link-grow inline-flex items-center gap-1 text-cyan">
+                  {shortHex(receipt.registryTxHash ?? "", 10)} <ArrowUpRight size={12} />
+                </a>{" "}
+                <span className="text-ink-faint">TesseraAttestations {shortHex(receipt.registry ?? "", 4)}</span>
+              </Row>
+            )}
             <Row label="Report hash">{shortHex(receipt.reportHash, 10)}</Row>
             <Row label="Evidence hash">
               {shortHex(receipt.evidenceHash, 10)}{" "}

@@ -14,7 +14,34 @@ export const BAS = {
   txExplorer: "https://testnet.bscscan.com",
   // registered by `tessera notary-setup`
   schemaUid: "0xcd4d38906641353fefefe1caabcba23f730b0512039c1b3c5478d47cf97373f8",
+  // Tessera's own TesseraAttestations contract: holds the same report hash
+  registry: "0x56e6472693982df91df33842f1d087f2e4308427",
 } as const;
+
+const RISK = ["LOW", "MEDIUM", "HIGH", "UNKNOWN"] as const;
+
+const registryAbi = [
+  {
+    type: "function",
+    name: "getAttestation",
+    stateMutability: "view",
+    inputs: [{ name: "verdictHash", type: "bytes32" }],
+    outputs: [
+      { name: "exists", type: "bool" },
+      {
+        name: "attestation",
+        type: "tuple",
+        components: [
+          { name: "committer", type: "address" },
+          { name: "committedAt", type: "uint64" },
+          { name: "riskLevel", type: "uint8" },
+          { name: "projectId", type: "string" },
+          { name: "evidenceUri", type: "string" },
+        ],
+      },
+    ],
+  },
+] as const;
 
 const SCHEMA = parseAbiParameters(
   "address project, string subject, string kind, string verdict, bytes32 reportHash, bytes32 evidenceHash, string reportURI, string agent",
@@ -86,6 +113,27 @@ export async function readVerdict(uid: Hex): Promise<OnchainVerdict> {
     evidenceHash,
     reportURI,
     agent,
+  };
+}
+
+export interface RegistryRecord {
+  committer: string;
+  committedAt: Date;
+  riskLevel: (typeof RISK)[number];
+  projectId: string;
+  evidenceUri: string;
+}
+
+/** The TesseraAttestations record for a report hash, or null when it holds none. */
+export async function readRegistry(reportHash: Hex): Promise<RegistryRecord | null> {
+  const [exists, a] = await client.readContract({ address: BAS.registry, abi: registryAbi, functionName: "getAttestation", args: [reportHash] });
+  if (!exists) return null;
+  return {
+    committer: a.committer,
+    committedAt: new Date(Number(a.committedAt) * 1000),
+    riskLevel: RISK[a.riskLevel] ?? "UNKNOWN",
+    projectId: a.projectId,
+    evidenceUri: a.evidenceUri,
   };
 }
 

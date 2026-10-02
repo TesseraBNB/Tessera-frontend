@@ -164,6 +164,7 @@ export interface NotaryInfo {
   enabled: boolean;
   chainId: number;
   contract: string;
+  registry?: string;
   rpcUrl: string;
   schema: string;
   schemaUid: string;
@@ -181,6 +182,9 @@ export interface NotaryReceipt {
   time: string;
   attestationUrl: string;
   txUrl: string;
+  registry?: string; // TesseraAttestations, holding the same report hash
+  registryTxHash?: string;
+  registryTxUrl?: string;
   reportUri: string;
   reportHash: string;
   evidenceHash: string;

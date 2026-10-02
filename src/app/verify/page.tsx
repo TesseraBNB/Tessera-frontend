@@ -6,7 +6,7 @@ import { ArrowUpRight, LoaderCircle, ShieldCheck } from "lucide-react";
 import Nav from "@/components/Nav";
 import { CheckResult, VerdictPill } from "@/components/NotaryPanel";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
-import { BAS, hashText, isUID, readVerdict, shortHex, type OnchainVerdict } from "@/lib/attestation";
+import { BAS, hashText, isUID, readRegistry, readVerdict, shortHex, type OnchainVerdict, type RegistryRecord } from "@/lib/attestation";
 
 type Check = { ok: boolean; onchain: OnchainVerdict; local: string } | { error: string };
 
@@ -40,6 +40,7 @@ function Verifier() {
   const [uid, setUid] = useState(params.get("uid") ?? "");
   const [loading, setLoading] = useState(false);
   const [att, setAtt] = useState<OnchainVerdict>();
+  const [registry, setRegistry] = useState<RegistryRecord | null>();
   const [error, setError] = useState<string>();
   const [fileCheck, setFileCheck] = useState<Check>();
   const [text, setText] = useState("");
@@ -53,11 +54,15 @@ function Verifier() {
     setLoading(true);
     setError(undefined);
     setAtt(undefined);
+    setRegistry(undefined);
     setFileCheck(undefined);
     setTextCheck(undefined);
     try {
       const onchain = await readVerdict(value.trim() as `0x${string}`);
       setAtt(onchain);
+      readRegistry(onchain.reportHash)
+        .then(setRegistry)
+        .catch(() => setRegistry(null));
       if (/^https?:\/\//.test(onchain.reportURI)) {
         try {
           const res = await fetch(onchain.reportURI);
@@ -153,6 +158,26 @@ function Verifier() {
             View {shortHex(att.uid, 8)} on BASScan <ArrowUpRight size={13} />
           </a>
           {att.revoked && <p className="mt-3 font-semibold text-bad">This attestation has been revoked.</p>}
+          {registry !== undefined && (
+            <div className="mt-5">
+              <p className="eyebrow mb-2">Same hash in TesseraAttestations</p>
+              {registry ? (
+                <p className="font-mono text-[0.76rem] text-ink-dim">
+                  <span className="text-good">recorded</span> · risk {registry.riskLevel} · {registry.committedAt.toUTCString().replace("GMT", "UTC")} ·{" "}
+                  <a
+                    href={`${BAS.txExplorer}/address/${BAS.registry}#code`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="link-grow text-cyan"
+                  >
+                    {shortHex(BAS.registry, 4)}
+                  </a>
+                </p>
+              ) : (
+                <p className="font-mono text-[0.76rem] text-ink-faint">not recorded in Tessera&apos;s own contract</p>
+              )}
+            </div>
+          )}
           {fileCheck && (
             <div className="mt-5">
               <p className="eyebrow mb-2">Report file at its attested link</p>
